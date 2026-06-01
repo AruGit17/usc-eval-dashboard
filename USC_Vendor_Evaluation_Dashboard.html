@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USC Capital Construction · Vendor Evaluation Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f2f0;
+  --sur:#ffffff;
+  --sur2:#fdf8f7;
+  --brd:#ead8d4;
+  --brd2:#f3e8e6;
+  --txt:#1a0606;
+  --mut:#8a6060;
+  --fnt:#c4a09a;
+  --cardinal:#990000;
+  --cardinal-dk:#6d0000;
+  --cardinal-lt:#c03030;
+  --cardinal2:rgba(153,0,0,.08);
+  --cardinal3:rgba(153,0,0,.04);
+  --gold:#FFCC00;
+  --gold-dk:#b8960a;
+  --gold-md:#d4aa00;
+  --gold2:rgba(255,204,0,.18);
+  --gold3:rgba(255,204,0,.08);
+  --grn:#1a7a3c;
+  --grn2:rgba(26,122,60,.1);
+  --amb:#b87a00;
+  --amb2:rgba(184,122,0,.1);
+  --red:#cc2200;
+  --red2:rgba(204,34,0,.08);
+  --pur:#5a3e8a;
+  --pur2:rgba(90,62,138,.1);
+  --blue:#1a5c8a;
+  --blue2:rgba(26,92,138,.1);
+  --r:12px;--rs:7px;
+  --shadow-sm:0 1px 3px rgba(100,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(100,0,0,.1),0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 24px rgba(100,0,0,.12),0 4px 8px rgba(0,0,0,.08);
+  --shadow-xl:0 16px 48px rgba(100,0,0,.15),0 8px 16px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'DM Sans',system-ui,sans-serif}
+body{background:var(--bg);color:var(--txt);font-size:13px;min-height:100vh}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--cardinal)}
+
+/* ══════════════════════════════════════
+   HEADER — 3D elevated design
+══════════════════════════════════════ */
+.nav{
+  background:linear-gradient(135deg,var(--cardinal-dk) 0%,var(--cardinal) 50%,#b50000 100%);
+  padding:0 32px;
+  height:76px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 4px 20px rgba(80,0,0,.35),0 1px 0 rgba(255,204,0,.3) inset;
+  overflow:hidden;
+}
+/* Geometric architectural pattern in header background */
+.nav::before{
+  content:'';position:absolute;right:-40px;top:-40px;
+  width:280px;height:160px;
+  background:
+    repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(255,204,0,.06) 18px,rgba(255,204,0,.06) 19px),
+    repeating-linear-gradient(-45deg,transparent,transparent 18px,rgba(255,255,255,.04) 18px,rgba(255,255,255,.04) 19px);
+  border-radius:50%;
+  pointer-events:none;
+}
+.nav::after{
+  content:'';position:absolute;right:80px;top:0;bottom:0;width:2px;
+  background:linear-gradient(to bottom,transparent,rgba(255,204,0,.4),transparent);
+  pointer-events:none;
+}
+.brand{display:flex;align-items:center;gap:16px;position:relative}
+.brand-icon{
+  width:44px;height:44px;
+  background:linear-gradient(145deg,#FFD700,#FFCC00,#e6b800);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.25),0 1px 0 rgba(255,255,255,.4) inset,0 -1px 0 rgba(0,0,0,.15) inset;
+  transform:perspective(200px) rotateY(-8deg);
+}
+.brand-icon svg{width:24px;height:24px;color:var(--cardinal-dk)}
+.brand-text{}
+.brand-text h1{
+  font-size:17px;font-weight:800;color:#fff;
+  letter-spacing:-.3px;line-height:1.1;
+  text-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+.brand-text h1 span{color:var(--gold);font-weight:800}
+.brand-text p{font-size:11px;color:rgba(255,255,255,.55);margin-top:3px;font-weight:400;letter-spacing:.3px}
+.nav-right{display:flex;align-items:center;gap:16px;font-size:12px;color:rgba(255,255,255,.65)}
+.sync{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(255,204,0,.15);
+  border:1px solid rgba(255,204,0,.35);
+  color:var(--gold);
+  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;
+  backdrop-filter:blur(4px);
+}
+.sync-dot{width:7px;height:7px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite;box-shadow:0 0 6px var(--gold)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.nav-date{color:rgba(255,255,255,.5);font-size:11px}
+
+/* ══════════════════════════════════════
+   FILTER BAR
+══════════════════════════════════════ */
+.filters{
+  background:var(--sur);
+  border-bottom:1px solid var(--brd);
+  padding:11px 32px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  box-shadow:var(--shadow-sm);
+}
+.flabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cardinal);margin-right:2px}
+.fchip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--sur2);
+  border:1.5px solid var(--brd);
+  border-radius:20px;
+  padding:6px 14px;
+  font-size:12px;color:var(--mut);
+  cursor:pointer;transition:all .18s;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.fchip:hover{border-color:var(--cardinal);color:var(--txt);box-shadow:var(--shadow-sm)}
+.fchip.active{background:var(--cardinal2);border-color:var(--cardinal);color:var(--cardinal);font-weight:600;box-shadow:0 0 0 3px rgba(153,0,0,.08)}
+.fchip svg{width:13px;height:13px;flex-shrink:0}
+.fchip select{background:none;border:none;outline:none;color:inherit;font-size:12px;font-family:inherit;cursor:pointer;padding-right:2px;-webkit-appearance:none}
+.fchip select option{background:#fff;color:#1a0606}
+.fsep{width:1px;height:24px;background:var(--brd)}
+.fchip.warn-chip.active{background:rgba(184,122,0,.08);border-color:var(--amb);color:var(--amb)}
+.search{
+  margin-left:auto;display:flex;align-items:center;gap:7px;
+  background:var(--sur);border:1.5px solid var(--brd);
+  border-radius:20px;padding:6px 16px;min-width:220px;
+  transition:all .18s;box-shadow:0 1px 2px rgba(0,0,0,.04);
+}
+.search:focus-within{border-color:var(--cardinal);box-shadow:0 0 0 3px rgba(153,0,0,.08)}
+.search svg{width:14px;height:14px;color:var(--fnt);flex-shrink:0}
+.search input{background:none;border:none;outline:none;color:var(--txt);font-size:12px;width:100%}
+.search input::placeholder{color:var(--fnt)}
+
+/* DATE RANGE PICKER */
+.date-range-chip{position:relative;user-select:none}
+.date-dropdown{
+  display:none;position:absolute;top:calc(100% + 10px);left:0;
+  background:var(--sur);border:1.5px solid var(--cardinal);
+  border-radius:var(--r);padding:16px;min-width:310px;
+  z-index:100;box-shadow:var(--shadow-xl);
+}
+.date-dropdown.open{display:block}
+.date-dropdown-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--cardinal);margin-bottom:12px}
+.date-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.date-col{display:flex;flex-direction:column;gap:5px;flex:1}
+.date-col label{font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.date-col select{background:var(--sur2);border:1.5px solid var(--brd);border-radius:var(--rs);padding:6px 10px;font-size:12px;color:var(--txt);font-family:inherit;outline:none;cursor:pointer;width:100%;transition:border-color .15s}
+.date-col select:focus{border-color:var(--cardinal)}
+.date-arrow{font-size:18px;color:var(--cardinal);margin-top:18px;font-weight:700}
+.date-quick-btns{display:flex;flex-wrap:wrap;gap:6px}
+.date-quick-btns button{background:var(--sur2);border:1.5px solid var(--brd);border-radius:var(--rs);padding:4px 11px;font-size:11px;color:var(--mut);cursor:pointer;font-family:inherit;font-weight:600;transition:all .15s}
+.date-quick-btns button:hover{border-color:var(--cardinal);color:var(--cardinal);background:var(--cardinal2)}
+.date-quick-btns .clear-btn:hover{border-color:var(--red);color:var(--red);background:var(--red2)}
+
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+.tabs-wrap{padding:20px 32px 0;display:flex;gap:4px}
+.tab{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 20px;
+  border-radius:var(--r) var(--r) 0 0;
+  font-size:13px;font-weight:500;cursor:pointer;
+  background:var(--brd2);color:var(--mut);
+  border:1.5px solid transparent;border-bottom:none;
+  transition:all .18s;
+}
+.tab svg{width:14px;height:14px;flex-shrink:0}
+.tab:hover{color:var(--txt);background:#f5e8e6}
+.tab.active{
+  background:var(--sur);color:var(--cardinal);
+  border-color:var(--brd);font-weight:700;
+  box-shadow:0 -2px 8px rgba(153,0,0,.08);
+}
+.tbadge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;font-variant-numeric:tabular-nums}
+
+/* ══════════════════════════════════════
+   MAIN PANEL
+══════════════════════════════════════ */
+.main{
+  background:var(--sur);
+  margin:0 32px;
+  border:1.5px solid var(--brd);
+  border-radius:0 var(--r) var(--r) var(--r);
+  padding:24px;
+  box-shadow:var(--shadow-md);
+}
+
+/* ══════════════════════════════════════
+   KPI CARDS — 3D floating
+══════════════════════════════════════ */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{
+  background:linear-gradient(160deg,#fff 60%,var(--sur2) 100%);
+  border:1.5px solid var(--brd);
+  border-radius:var(--r);
+  padding:18px 20px;
+  position:relative;overflow:hidden;
+  transition:transform .25s ease,box-shadow .25s ease;
+  transform-style:preserve-3d;
+  cursor:default;
+  box-shadow:var(--shadow-sm),0 0 0 1px rgba(255,255,255,.8) inset;
+}
+.kpi:hover{
+  transform:perspective(700px) rotateX(-4deg) rotateY(1deg) translateY(-4px);
+  box-shadow:var(--shadow-lg),0 0 0 1px rgba(255,255,255,.8) inset;
+}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:var(--r) var(--r) 0 0}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(to bottom,rgba(255,255,255,.6),transparent);pointer-events:none;border-radius:var(--r) var(--r) 0 0}
+.kpi.k-cardinal::before{background:linear-gradient(90deg,var(--cardinal-dk),var(--cardinal-lt))}
+.kpi.k-gold::before{background:linear-gradient(90deg,var(--gold-dk),var(--gold))}
+.kpi.k-green::before{background:linear-gradient(90deg,#0f5228,var(--grn))}
+.kpi.k-pur::before{background:linear-gradient(90deg,#3a2060,var(--pur))}
+.kpi-icon{position:absolute;top:14px;right:16px;opacity:.12}
+.kpi-icon svg{width:32px;height:32px}
+.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.9px;color:var(--mut);margin-bottom:10px;font-weight:700;position:relative;z-index:1}
+.kpi-val{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;position:relative;z-index:1}
+.kpi-sub{font-size:11px;color:var(--mut);margin-top:6px;position:relative;z-index:1}
+
+/* ══════════════════════════════════════
+   TABLE HEADER ROW
+══════════════════════════════════════ */
+.thead-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.ttitle{font-size:15px;font-weight:800;color:var(--cardinal);letter-spacing:-.2px}
+.tsub{font-size:11px;color:var(--mut);margin-top:4px}
+.tsub .lnk-s{color:var(--cardinal);font-weight:700}
+.tsub .lnk-f{color:var(--grn);font-weight:700}
+.tacts{display:flex;gap:8px;align-items:center}
+.tbtn{
+  background:var(--sur2);border:1.5px solid var(--brd);
+  border-radius:var(--rs);padding:6px 13px;
+  font-size:11px;color:var(--mut);cursor:pointer;
+  font-family:inherit;transition:all .15s;font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.04);
+  display:flex;align-items:center;gap:5px;
+}
+.tbtn svg{width:12px;height:12px}
+.tbtn:hover{border-color:var(--cardinal);color:var(--cardinal);background:var(--cardinal2);box-shadow:var(--shadow-sm)}
+.phase-legend{display:flex;gap:14px;align-items:center}
+.litem{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mut);font-weight:500}
+.ldot{width:8px;height:8px;border-radius:50%;box-shadow:0 0 4px currentColor}
+
+/* ══════════════════════════════════════
+   TABLE
+══════════════════════════════════════ */
+table{width:100%;border-collapse:separate;border-spacing:0}
+thead tr{background:linear-gradient(to bottom,var(--sur2),#fdf4f2)}
+th{
+  text-align:left;padding:10px 14px;
+  font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.7px;color:var(--cardinal);
+  cursor:pointer;white-space:nowrap;user-select:none;
+  border-bottom:2px solid var(--brd);
+}
+th:hover{color:var(--cardinal-lt)}
+td{padding:13px 14px;border-bottom:1px solid var(--brd2);vertical-align:middle}
+tbody tr{transition:all .15s;cursor:default}
+tbody tr:hover td{background:linear-gradient(135deg,#fff8f7,#fff);box-shadow:inset 0 1px 0 rgba(153,0,0,.04),inset 0 -1px 0 rgba(153,0,0,.04)}
+tr:last-child td{border-bottom:none}
+
+.firm-cell{display:flex;align-items:center;gap:12px}
+.firm-av{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;flex-shrink:0;color:#fff;
+  box-shadow:0 3px 8px rgba(0,0,0,.2),0 1px 0 rgba(255,255,255,.25) inset;
+  transform:perspective(120px) rotateY(-5deg);
+}
+.firm-name{font-weight:700;font-size:13px;color:var(--txt)}
+.firm-sub{font-size:10px;color:var(--mut);margin-top:2px;font-weight:500}
+
+.type-badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px}
+.arch{background:var(--cardinal2);color:var(--cardinal);border:1px solid rgba(153,0,0,.15)}
+.cont{background:var(--gold2);color:var(--gold-dk);border:1px solid rgba(184,150,10,.2)}
+.eng{background:var(--grn2);color:var(--grn);border:1px solid rgba(26,122,60,.15)}
+.db{background:var(--pur2);color:var(--pur);border:1px solid rgba(90,62,138,.15)}
+
+/* 3D score bar */
+.score-cell{display:flex;align-items:center;gap:9px}
+.score-num{font-size:15px;font-weight:800;min-width:30px;font-variant-numeric:tabular-nums}
+.score-track{
+  flex:1;min-width:55px;height:7px;
+  background:linear-gradient(to bottom,#e8d0d0,#f2e4e2);
+  border-radius:4px;overflow:hidden;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.12);
+}
+.score-fill{
+  height:7px;border-radius:4px;position:relative;overflow:hidden;
+  transition:width .4s ease;
+}
+.score-fill::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:48%;
+  background:rgba(255,255,255,.38);border-radius:4px 4px 0 0;
+}
+
+.pm-cell{font-size:12px;color:var(--mut)}
+.pm-name{color:var(--txt);margin-bottom:2px;font-weight:500}
+.pm-more{color:var(--cardinal);font-size:10px;cursor:pointer;font-weight:700}
+
+.phases-cell{display:flex;gap:4px;flex-wrap:wrap}
+.pp{font-size:10px;padding:3px 9px;border-radius:8px;font-weight:700;letter-spacing:.2px}
+.pp-pre{background:var(--cardinal2);color:var(--cardinal);border:1px solid rgba(153,0,0,.12)}
+.pp-con{background:var(--gold2);color:var(--gold-dk);border:1px solid rgba(184,150,10,.15)}
+.pp-clo{background:var(--grn2);color:var(--grn);border:1px solid rgba(26,122,60,.12)}
+
+.no-score{font-size:12px;color:var(--fnt);font-style:italic}
+
+/* ══════════════════════════════════════
+   ACTION BUTTONS — 3D press
+══════════════════════════════════════ */
+.action-cell{display:flex;gap:7px;justify-content:flex-end}
+.btn-scores{
+  display:flex;align-items:center;gap:5px;
+  background:linear-gradient(to bottom,#fff,var(--cardinal2));
+  border:1.5px solid var(--cardinal);border-radius:var(--rs);
+  padding:5px 12px;font-size:11px;color:var(--cardinal);
+  cursor:pointer;font-family:inherit;font-weight:700;
+  transition:all .15s;white-space:nowrap;
+  box-shadow:0 2px 4px rgba(153,0,0,.12),0 1px 0 rgba(255,255,255,.8) inset;
+}
+.btn-scores svg{width:12px;height:12px}
+.btn-scores:hover{background:var(--cardinal);color:#fff;box-shadow:0 4px 10px rgba(153,0,0,.25),0 1px 0 rgba(255,255,255,.2) inset;transform:translateY(-1px)}
+.btn-scores:active{transform:translateY(1px);box-shadow:0 1px 2px rgba(153,0,0,.2)}
+.btn-feedback{
+  display:flex;align-items:center;gap:5px;
+  background:linear-gradient(to bottom,#fff,var(--grn2));
+  border:1.5px solid var(--grn);border-radius:var(--rs);
+  padding:5px 12px;font-size:11px;color:var(--grn);
+  cursor:pointer;font-family:inherit;font-weight:700;
+  transition:all .15s;white-space:nowrap;
+  box-shadow:0 2px 4px rgba(26,122,60,.12),0 1px 0 rgba(255,255,255,.8) inset;
+}
+.btn-feedback svg{width:12px;height:12px}
+.btn-feedback:hover{background:var(--grn);color:#fff;box-shadow:0 4px 10px rgba(26,122,60,.25),0 1px 0 rgba(255,255,255,.2) inset;transform:translateY(-1px)}
+.btn-feedback:active{transform:translateY(1px)}
+.btn-feedback.no-comments{background:var(--sur2);border-color:var(--brd);color:var(--fnt);cursor:default;opacity:.5;box-shadow:none}
+.btn-feedback.no-comments:hover{background:var(--sur2);color:var(--fnt);transform:none;box-shadow:none}
+
+.load-more{text-align:center;padding:14px 0 4px;font-size:12px;color:var(--mut)}
+.load-more a{color:var(--cardinal);cursor:pointer;font-weight:700}
+
+/* ══════════════════════════════════════
+   GOLD DIVIDER
+══════════════════════════════════════ */
+.gold-divider{height:2px;background:linear-gradient(90deg,transparent,var(--cardinal),var(--gold),var(--cardinal),transparent);margin:0 32px;opacity:.5}
+
+/* ══════════════════════════════════════
+   BOTTOM PANELS
+══════════════════════════════════════ */
+.bottom{margin:16px 32px 32px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mini{
+  background:linear-gradient(160deg,#fff 70%,var(--sur2) 100%);
+  border:1.5px solid var(--brd);border-radius:var(--r);
+  padding:20px;box-shadow:var(--shadow-sm);
+  transition:box-shadow .2s,transform .2s;
+}
+.mini:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.mini-title{
+  font-size:11px;font-weight:800;color:var(--cardinal);
+  margin-bottom:16px;display:flex;align-items:center;gap:7px;
+  text-transform:uppercase;letter-spacing:.6px;
+}
+.mini-title svg{width:14px;height:14px}
+.bar-row{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.bl{font-size:11px;color:var(--mut);width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.bt{flex:1;height:8px;background:linear-gradient(to bottom,#e8d0d0,#f2e4e2);border-radius:4px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
+.bf{height:8px;border-radius:4px;position:relative;overflow:hidden}
+.bf::after{content:'';position:absolute;top:0;left:0;right:0;height:45%;background:rgba(255,255,255,.35);border-radius:4px 4px 0 0}
+.bv{font-size:11px;font-weight:800;min-width:26px;text-align:right;font-variant-numeric:tabular-nums}
+.phase-prog{height:9px;border-radius:5px;background:var(--brd);overflow:hidden;display:flex;margin-top:14px;box-shadow:inset 0 1px 3px rgba(0,0,0,.1)}
+.prog-leg{font-size:10px;color:var(--mut);margin-top:7px;display:flex;gap:14px;font-weight:700}
+
+/* ══════════════════════════════════════
+   MODALS
+══════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(80,0,0,.45);
+  backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--sur);
+  border:1.5px solid var(--brd);
+  border-radius:16px;
+  width:720px;max-width:95vw;max-height:88vh;
+  overflow:hidden;display:flex;flex-direction:column;
+  transform:scale(.96) translateY(12px);
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 32px 80px rgba(80,0,0,.25),0 8px 16px rgba(0,0,0,.1),0 0 0 1px rgba(255,255,255,.5) inset;
+}
+.overlay.open .modal{transform:scale(1) translateY(0)}
+.modal-hd{
+  background:linear-gradient(135deg,var(--cardinal-dk),var(--cardinal),#b50000);
+  padding:20px 24px 18px;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+}
+.modal-hd h3{font-size:16px;font-weight:800;color:#fff;letter-spacing:-.2px}
+.modal-hd p{font-size:12px;color:rgba(255,255,255,.6);margin-top:3px}
+.modal-close{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  border-radius:var(--rs);width:30px;height:30px;color:#fff;
+  cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;
+}
+.modal-close:hover{background:rgba(255,255,255,.28)}
+.modal-meta{
+  display:flex;gap:10px;padding:16px 24px;
+  border-bottom:1px solid var(--brd2);
+  background:linear-gradient(to bottom,var(--sur2),var(--sur));
+}
+.mm{
+  background:var(--sur);border:1.5px solid var(--brd);
+  border-radius:var(--rs);padding:10px 16px;flex:1;
+  box-shadow:var(--shadow-sm);
+  transition:transform .2s,box-shadow .2s;
+}
+.mm:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.mm-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--cardinal);margin-bottom:5px;font-weight:800}
+.mm-val{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.modal-body{padding:18px 24px;overflow-y:auto}
+.proj-row{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border:1.5px solid var(--brd2);
+  border-radius:var(--r);margin-bottom:9px;
+  background:linear-gradient(135deg,var(--sur2),#fff);
+  transition:all .15s;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+}
+.proj-row:hover{border-color:var(--brd);background:#fff;box-shadow:var(--shadow-sm);transform:translateX(2px)}
+.proj-row.warn{border-color:rgba(184,122,0,.35);background:linear-gradient(135deg,rgba(255,204,0,.06),#fff);border-left:3px solid var(--amb)}
+.proj-row.low{border-color:rgba(153,0,0,.25);background:linear-gradient(135deg,rgba(153,0,0,.04),#fff);border-left:3px solid var(--cardinal)}
+.proj-info{flex:1;min-width:0}
+.proj-num{font-weight:700;font-size:13px;color:var(--txt)}
+.proj-meta{font-size:11px;color:var(--mut);margin-top:2px;font-weight:500}
+.proj-comment{font-size:11px;color:var(--mut);margin-top:4px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.proj-phase{font-size:10px;padding:3px 10px;border-radius:8px;font-weight:700;flex-shrink:0}
+.proj-score{font-size:17px;font-weight:800;min-width:38px;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0}
+
+/* NARROW FEEDBACK MODAL */
+.modal-narrow{width:540px}
+.feedback-all-comments-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.7px;color:var(--cardinal);font-weight:800;margin-bottom:7px}
+.feedback-all-comments{font-size:12px;color:var(--mut);background:var(--sur2);border:1.5px solid var(--brd2);border-left:3px solid var(--cardinal);border-radius:var(--rs);padding:12px 14px;margin-bottom:16px;line-height:1.6;max-height:120px;overflow-y:auto}
+
+/* AI analysis styles */
+.ai-summary{font-size:12px;color:var(--txt);background:linear-gradient(135deg,rgba(255,204,0,.08),rgba(153,0,0,.04));border:1.5px solid rgba(184,150,10,.2);border-left:3px solid var(--gold-dk);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px;line-height:1.5}
+.ai-summary-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--cardinal);font-weight:800;margin-bottom:4px}
+.ai-positives,.ai-negatives{margin-bottom:12px}
+.ai-section-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px}
+.ai-item{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--txt);padding:4px 0;line-height:1.5}
+.ai-item span:first-child{font-size:13px;margin-top:1px}
+</style>
+</head>
+<body>
+
+<!-- SVG icon defs (reusable) -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="ic-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 9l9-6 9 6"/>
+    <rect x="9" y="13" width="2" height="4"/><rect x="13" y="13" width="2" height="4"/>
+    <line x1="9" y1="9" x2="9" y2="9.01"/><line x1="15" y1="9" x2="15" y2="9.01"/>
+  </symbol>
+  <symbol id="ic-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+    <rect x="8" y="14" width="2" height="2" rx=".5"/><rect x="13" y="14" width="2" height="2" rx=".5"/>
+  </symbol>
+  <symbol id="ic-person" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+  </symbol>
+  <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+  </symbol>
+  <symbol id="ic-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r=".5" fill="currentColor"/>
+  </symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </symbol>
+  <symbol id="ic-barchart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+    <line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/>
+  </symbol>
+  <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+  </symbol>
+  <symbol id="ic-sort" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 6h13M8 12h9M8 18h5"/><path d="M3 6l0 0M3 12l0 0M3 18l0 0"/>
+  </symbol>
+  <symbol id="ic-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+  </symbol>
+  <symbol id="ic-architect" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+  </symbol>
+  <symbol id="ic-contractor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+  </symbol>
+  <symbol id="ic-engineer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
+  </symbol>
+  <symbol id="ic-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+    <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+  </symbol>
+  <symbol id="ic-evals" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+    <polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/>
+    <line x1="9" y1="17" x2="12" y2="17"/>
+  </symbol>
+  <symbol id="ic-score" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </symbol>
+  <symbol id="ic-firms" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+  </symbol>
+  <symbol id="ic-pm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M16 11l2 2 4-4"/>
+  </symbol>
+</svg>
+
+<nav class="nav">
+  <div class="brand">
+    <div class="brand-icon">
+      <svg><use href="#ic-building"/></svg>
+    </div>
+    <div class="brand-text">
+      <h1><span>Capital Construction</span> · Vendor Evaluation</h1>
+      <p>University of Southern California — Department of Capital Construction</p>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="sync"><div class="sync-dot"></div>Data Loaded</div>
+    <span class="nav-date" id="nav-date"></span>
+  </div>
+</nav>
+
+<div class="filters">
+  <span class="flabel">Filters</span>
+
+  <div class="fchip date-range-chip" id="chip-date" onclick="toggleDatePicker(event)">
+    <svg><use href="#ic-calendar"/></svg>
+    <span id="date-label">All Dates</span>
+    <span style="font-size:9px;opacity:.5">▾</span>
+    <div class="date-dropdown" id="date-dropdown" onclick="event.stopPropagation()">
+      <div class="date-dropdown-title">Select Date Range</div>
+      <div class="date-row">
+        <div class="date-col">
+          <label>From</label>
+          <select id="filter-date-from" onchange="applyDateRange()">
+            <option value="">Earliest</option>
+          </select>
+        </div>
+        <div class="date-arrow">→</div>
+        <div class="date-col">
+          <label>To</label>
+          <select id="filter-date-to" onchange="applyDateRange()">
+            <option value="">Latest</option>
+          </select>
+        </div>
+      </div>
+      <div class="date-quick-btns">
+        <button onclick="setQuickRange('2026')">2026</button>
+        <button onclick="setQuickRange('2025')">2025</button>
+        <button onclick="setQuickRange('2024')">2024</button>
+        <button onclick="setQuickRange('2023')">2023</button>
+        <button onclick="setQuickRange('last6')">Last 6 mo.</button>
+        <button onclick="setQuickRange('last12')">Last 12 mo.</button>
+        <button onclick="setQuickRange('')" class="clear-btn">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="fchip" id="chip-pm">
+    <svg><use href="#ic-person"/></svg>
+    <select id="filter-pm" onchange="applyFilters()">
+      <option value="">All PMs</option>
+    </select>
+  </div>
+
+  <div class="fchip" id="chip-phase">
+    <svg><use href="#ic-layers"/></svg>
+    <select id="filter-phase" onchange="applyFilters()">
+      <option value="">All Phases</option>
+      <option>Preconstruction</option>
+      <option>Construction</option>
+      <option>Closeout</option>
+    </select>
+  </div>
+
+  <div class="fsep"></div>
+
+  <div class="fchip warn-chip" id="chip-score" onclick="toggleScoreFilter()" title="Show only firms with avg score below 3.0">
+    <svg><use href="#ic-warning"/></svg>
+    Low Score Only
+  </div>
+
+  <div class="search">
+    <svg><use href="#ic-search"/></svg>
+    <input type="text" id="search-input" placeholder="Search firm, PM, project…" oninput="applyFilters()">
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tab active" onclick="setTab('All')">
+    <svg><use href="#ic-building"/></svg>
+    All Vendors <span class="tbadge" id="badge-All" style="background:var(--cardinal2);color:var(--cardinal)"></span>
+  </div>
+  <div class="tab" onclick="setTab('Architect')">
+    <svg><use href="#ic-architect"/></svg>
+    Architects <span class="tbadge" id="badge-Architect" style="background:var(--cardinal2);color:var(--cardinal)"></span>
+  </div>
+  <div class="tab" onclick="setTab('Contractor')">
+    <svg><use href="#ic-contractor"/></svg>
+    Contractors <span class="tbadge" id="badge-Contractor" style="background:var(--gold2);color:var(--gold-dk)"></span>
+  </div>
+  <div class="tab" onclick="setTab('Engineer')">
+    <svg><use href="#ic-engineer"/></svg>
+    Engineers <span class="tbadge" id="badge-Engineer" style="background:var(--grn2);color:var(--grn)"></span>
+  </div>
+  <div class="tab" onclick="setTab('Design-Builder')">
+    <svg><use href="#ic-db"/></svg>
+    Design-Builders <span class="tbadge" id="badge-Design-Builder" style="background:var(--pur2);color:var(--pur)"></span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="kpis">
+    <div class="kpi k-cardinal">
+      <div class="kpi-icon"><svg><use href="#ic-evals"/></svg></div>
+      <div class="kpi-label">Total Evaluations</div>
+      <div class="kpi-val" id="kpi-evals" style="color:var(--cardinal)">—</div>
+      <div class="kpi-sub">across all vendor types</div>
+    </div>
+    <div class="kpi k-gold">
+      <div class="kpi-icon"><svg><use href="#ic-score"/></svg></div>
+      <div class="kpi-label">Avg Score</div>
+      <div class="kpi-val" id="kpi-score" style="color:var(--gold-dk)">—</div>
+      <div class="kpi-sub">out of 5.0</div>
+    </div>
+    <div class="kpi k-green">
+      <div class="kpi-icon"><svg><use href="#ic-firms"/></svg></div>
+      <div class="kpi-label">Firms Evaluated</div>
+      <div class="kpi-val" id="kpi-firms" style="color:var(--grn)">—</div>
+      <div class="kpi-sub">unique vendor firms</div>
+    </div>
+    <div class="kpi k-pur">
+      <div class="kpi-icon"><svg><use href="#ic-pm"/></svg></div>
+      <div class="kpi-label">Active PMs</div>
+      <div class="kpi-val" id="kpi-pms" style="color:var(--pur)">—</div>
+      <div class="kpi-sub">conducting evaluations</div>
+    </div>
+  </div>
+
+  <div class="thead-row">
+    <div>
+      <div class="ttitle">Vendor Firm Evaluations</div>
+      <div class="tsub">
+        <span class="lnk-s">Scores</span> — per-project breakdown &nbsp;·&nbsp;
+        <span class="lnk-f">Feedback</span> — AI-analysed PM comments
+      </div>
+    </div>
+    <div class="tacts">
+      <div class="phase-legend">
+        <div class="litem"><div class="ldot" style="color:var(--cardinal);background:var(--cardinal)"></div>Preconstruction</div>
+        <div class="litem"><div class="ldot" style="color:var(--gold-dk);background:var(--gold-dk)"></div>Construction</div>
+        <div class="litem"><div class="ldot" style="color:var(--grn);background:var(--grn)"></div>Closeout</div>
+      </div>
+      <button class="tbtn" onclick="sortBy('eval_count')">
+        <svg><use href="#ic-sort"/></svg> Sort: Evals
+      </button>
+      <button class="tbtn" onclick="exportCSV()">
+        <svg><use href="#ic-download"/></svg> Export CSV
+      </button>
+    </div>
+  </div>
+
+  <table id="main-table">
+    <thead>
+      <tr>
+        <th onclick="sortBy('firm_name')">Firm Name ⇅</th>
+        <th>Type</th>
+        <th onclick="sortBy('eval_count')">Evals ⇅</th>
+        <th onclick="sortBy('avg_score')">Avg Score ⇅</th>
+        <th>Project Manager(s)</th>
+        <th>Phases</th>
+        <th style="text-align:center">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+  <div class="load-more" id="load-more-row" style="display:none">
+    Showing <span id="showing-count"></span> of <span id="total-count"></span> firms · <a onclick="showAll()">Show all</a>
+  </div>
+</div>
+
+<div class="gold-divider"></div>
+
+<div class="bottom">
+  <div class="mini">
+    <div class="mini-title">
+      <svg><use href="#ic-barchart"/></svg> Top Firms by Avg Score
+    </div>
+    <div id="score-chart"></div>
+  </div>
+  <div class="mini">
+    <div class="mini-title">
+      <svg><use href="#ic-layers"/></svg> Evaluations by Phase
+    </div>
+    <div id="phase-chart"></div>
+  </div>
+</div>
+
+<!-- MODAL 1: SCORES -->
+<div class="overlay" id="overlay-scores" onclick="if(event.target===this)closeScores()">
+  <div class="modal">
+    <div class="modal-hd">
+      <div>
+        <h3 id="s-title">Score Breakdown</h3>
+        <p id="s-sub"></p>
+      </div>
+      <button class="modal-close" onclick="closeScores()">✕</button>
+    </div>
+    <div class="modal-meta">
+      <div class="mm"><div class="mm-lbl">Avg Score</div><div class="mm-val" id="s-avg">—</div></div>
+      <div class="mm"><div class="mm-lbl">Projects</div><div class="mm-val" id="s-projs">—</div></div>
+      <div class="mm"><div class="mm-lbl">Best</div><div class="mm-val" id="s-best" style="color:var(--grn)">—</div></div>
+      <div class="mm"><div class="mm-lbl">Lowest</div><div class="mm-val" id="s-low" style="color:var(--amb)">—</div></div>
+      <div class="mm"><div class="mm-lbl">Total Evals</div><div class="mm-val" id="s-evals">—</div></div>
+    </div>
+    <div class="modal-body" id="scores-body"></div>
+  </div>
+</div>
+
+<!-- MODAL 2: FEEDBACK -->
+<div class="overlay" id="overlay-feedback" onclick="if(event.target===this)closeFeedback()">
+  <div class="modal modal-narrow">
+    <div class="modal-hd">
+      <div>
+        <h3 id="f-title">PM Feedback Analysis</h3>
+        <p id="f-sub"></p>
+      </div>
+      <button class="modal-close" onclick="closeFeedback()">✕</button>
+    </div>
+    <div class="modal-body" id="feedback-body"></div>
+  </div>
+</div>
+
+
+<script>
+const ALL_DATA = [{"firm_name":"D. Michael Hamner AIA","vendor_type":"Architect","eval_count":23,"score_count":23,"avg_score":4.64,"pms":["Ben Cardenas","Brooke Ishimoto","Howard Weissberger","Hunter Gaines","Randall Figueroa"],"phases":["Closeout","Construction","Preconstruction"],"all_comments":"Excellent, as usual. | Stellar. As always. | Mike Hamner is an asset to USC | Great Team to work with. | Thomas did an exceptional job of all aspects of this project. | Thomas Gin did a fabulous job with this project. | Once again, this architect produced very high quality work, at a very modest price. | This architect invested many hours over his fee to assure that the drawings and scope were exact. | This architect is easily the best value for cost v. service. Low cost and outstanding service.","projects":[{"project_number":"A25235","project_phase":"Construction","date":"2026-03-23","year_month":"Mar 2026","pm_name":"Howard Weissberger","score":3.71,"comment":null},{"project_number":"702061","project_phase":"Closeout","date":"2025-11-11","year_month":"Nov 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"610922","project_phase":"Closeout","date":"2025-10-15","year_month":"Oct 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Excellent, as usual."},{"project_number":"694723","project_phase":"Preconstruction","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Hunter Gaines","score":3.59,"comment":null},{"project_number":"417620","project_phase":"Closeout","date":"2025-07-29","year_month":"Jul 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Stellar. As always."},{"project_number":"486039","project_phase":"Preconstruction","date":"2025-07-15","year_month":"Jul 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"562569","project_phase":"Closeout","date":"2025-06-10","year_month":"Jun 2025","pm_name":"CTV G128 (project name)","score":4.33,"comment":null},{"project_number":"569762","project_phase":"Closeout","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Mike Hamner is an asset to USC"},{"project_number":"702061","project_phase":"Preconstruction","date":"2025-05-13","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Great Team to work with."},{"project_number":"674499","project_phase":"Construction","date":"2025-02-24","year_month":"Feb 2025","pm_name":"Howard Weissberger","score":4.17,"comment":null},{"project_number":"517571","project_phase":"Construction","date":"2025-01-27","year_month":"Jan 2025","pm_name":"Howard Weissberger","score":3.88,"comment":null},{"project_number":"606243","project_phase":"Construction","date":"2025-01-27","year_month":"Jan 2025","pm_name":"Howard Weissberger","score":4.0,"comment":null},{"project_number":"472037","project_phase":"Closeout","date":"2025-01-22","year_month":"Jan 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Thomas did an exceptional job of all aspects of this project."},{"project_number":"472037","project_phase":"Construction","date":"2025-01-22","year_month":"Jan 2025","pm_name":"Brooke Ishimoto","score":4.88,"comment":"Thomas Gin did a fabulous job with this project."},{"project_number":"417620","project_phase":"Construction","date":"2025-01-22","year_month":"Jan 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":null},{"project_number":"641463","project_phase":"Preconstruction","date":"2024-09-16","year_month":"Sep 2024","pm_name":"Ben Cardenas","score":4.53,"comment":null},{"project_number":"562569","project_phase":"Construction","date":"2024-09-16","year_month":"Sep 2024","pm_name":"Ben Cardenas","score":4.56,"comment":null},{"project_number":"417620","project_phase":"Construction","date":"2024-06-11","year_month":"Jun 2024","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Once again, this architect produced very high quality work, at a very modest price."},{"project_number":"472568","project_phase":"Closeout","date":"2024-05-21","year_month":"May 2024","pm_name":"Brooke Ishimoto","score":5.0,"comment":"This architect invested many hours over his fee to assure that the drawings and scope were exact."},{"project_number":"399090","project_phase":"Closeout","date":"2024-05-17","year_month":"May 2024","pm_name":"Brooke Ishimoto","score":5.0,"comment":"This architect is easily the best value for cost v. service. Low cost and outstanding service."},{"project_number":"562569","project_phase":"Preconstruction","date":"2024-03-21","year_month":"Mar 2024","pm_name":"Ben Cardenas","score":4.38,"comment":null},{"project_number":"577352","project_phase":"Closeout","date":"2024-03-21","year_month":"Mar 2024","pm_name":"Ben Cardenas","score":5.0,"comment":null},{"project_number":"412148","project_phase":"Construction","date":"2023-09-15","year_month":"Sep 2023","pm_name":"Ben Cardenas","score":4.67,"comment":null}]},{"firm_name":"Simovich & Sons","vendor_type":"Contractor","eval_count":17,"score_count":17,"avg_score":5.0,"pms":["Brooke Ishimoto","Laura Chen","Patricia Rosales","Pedrum Vassetizadeh","Randall Figueroa","Roberto Villamar"],"phases":["Closeout","Construction"],"all_comments":"Simovich is the only GC who has the ability to operate on his own. He is professional and goes above and beyond in all respects. | One of the BEST GC's at USC | Simovich is a great GC, very through. | Simovich is one of the best GC\u2019s working at USC. Always fair (to a fault) if I could give a GC a 10 it would be Simovich.","projects":[{"project_number":"A38701","project_phase":"Construction","date":"2026-04-14","year_month":"Apr 2026","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"A38701","project_phase":"Construction","date":"2026-04-14","year_month":"Apr 2026","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"703530","project_phase":"Construction","date":"2026-02-10","year_month":"Feb 2026","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"703530","project_phase":"Construction","date":"2025-11-11","year_month":"Nov 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"A21926","project_phase":"Construction","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"635287","project_phase":"Construction","date":"2025-07-29","year_month":"Jul 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Simovich is the only GC who has the ability to operate on his own. He is professional and goes above and beyond in all respects."},{"project_number":"A13616","project_phase":"Construction","date":"2025-07-24","year_month":"Jul 2025","pm_name":"Roberto Villamar","score":5.0,"comment":null},{"project_number":"703530","project_phase":"Construction","date":"2025-07-15","year_month":"Jul 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"665774","project_phase":"Closeout","date":"2025-07-15","year_month":"Jul 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"545772","project_phase":"Closeout","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"651498","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"657340","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"One of the BEST GC's at USC"},{"project_number":"651498","project_phase":"Closeout","date":"2025-05-13","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Simovich is a great GC, very through."},{"project_number":"407904","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Simovich is one of the best GC\u2019s working at USC. Always fair (to a fault) if I could give a GC a 10 it would be Simovich."},{"project_number":"519579","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Patricia Rosales","score":5.0,"comment":null},{"project_number":"519464","project_phase":"Closeout","date":"2023-10-10","year_month":"Oct 2023","pm_name":"Laura Chen","score":5.0,"comment":null},{"project_number":"458726","project_phase":"Construction","date":"2023-07-19","year_month":"Jul 2023","pm_name":"Pedrum Vassetizadeh","score":5.0,"comment":null}]},{"firm_name":"Mythograph","vendor_type":"Architect","eval_count":16,"score_count":15,"avg_score":4.93,"pms":["Carla Barry","Cyntia Rodas","Randall Figueroa"],"phases":["Closeout","Construction","Preconstruction"],"all_comments":"Mythograph is a valued asset to USC | Mythograph is a totally capable firm. | Project was canceled by the customer and moved to another building at the PI's request | Always a pleasure to work with, timely and thorough. | Architect's management of the closeout and punchlist process was diligent, and reflected a smooth turnover to the customer. | Mythograph works well with the USC PM and the GC | Overall, Marta was a great architect to have on the project. She was very knowledgeable, helpful, and essential in getting the project moving forward and across the finish line.\n\nThroughout the project, she provided support beyond her scope of work and was always willing to assist whenever needed.","projects":[{"project_number":"639968","project_phase":"Closeout","date":"2026-05-13","year_month":"May 2026","pm_name":"Cyntia Rodas","score":5.0,"comment":"Overall, Marta was a great architect to have on the project. She was very knowledgeable, helpful, and essential in getting the project moving forward and across the finish line.\n\nThroughout the project, she provided support beyond her scope of work and was always willing to assist whenever needed."},{"project_number":"A21952","project_phase":"Construction","date":"2026-04-14","year_month":"Apr 2026","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"703530","project_phase":"Construction","date":"2026-02-10","year_month":"Feb 2026","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"703530","project_phase":"Construction","date":"2025-11-11","year_month":"Nov 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"A21926","project_phase":"Construction","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"626541","project_phase":"Closeout","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"703530","project_phase":"Construction","date":"2025-07-15","year_month":"Jul 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"A21926","project_phase":"Preconstruction","date":"2025-07-15","year_month":"Jul 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"651498","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"657340","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Mythograph is a valued asset to USC"},{"project_number":"651498","project_phase":"Closeout","date":"2025-05-13","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Mythograph is a totally capable firm."},{"project_number":"702005","project_phase":"Closeout","date":"2025-05-13","year_month":"May 2025","pm_name":"Randall Figueroa","score":null,"comment":"Project was canceled by the customer and moved to another building at the PI's request"},{"project_number":"491741","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Always a pleasure to work with, timely and thorough."},{"project_number":"626541","project_phase":"Construction","date":"2024-11-15","year_month":"Nov 2024","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"243247","project_phase":"Closeout","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":4.0,"comment":"Architect's management of the closeout and punchlist process was diligent, and reflected a smooth turnover to the customer."},{"project_number":"605445","project_phase":"Construction","date":"2024-10-08","year_month":"Oct 2024","pm_name":"Randall Figueroa","score":5.0,"comment":"Mythograph works well with the USC PM and the GC"}]},{"firm_name":"HC Olsen","vendor_type":"Contractor","eval_count":14,"score_count":14,"avg_score":4.95,"pms":["Carl Sanders","Howard S Weissberger","Howard Weissberger","Ramon Hernandez","Randall Figueroa"],"phases":["Closeout","Construction"],"all_comments":"Amazing GC. | H C Olsen is one of the best GCs on campus | HC Olsen is always committed to providing USC with the best outcome. | One of the best GC's working at USC. | An overall very good experience. Proactive and solution oriented","projects":[{"project_number":"A38701","project_phase":"Construction","date":"2026-04-14","year_month":"Apr 2026","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"A25235","project_phase":"Construction","date":"2026-03-23","year_month":"Mar 2026","pm_name":"Howard Weissberger","score":4.27,"comment":null},{"project_number":"664961","project_phase":"Closeout","date":"2026-03-12","year_month":"Mar 2026","pm_name":"Carl Sanders","score":5.0,"comment":"An overall very good experience. Proactive and solution oriented"},{"project_number":"A18145","project_phase":"Construction","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"584563","project_phase":"Closeout","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"651498","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"584563","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Amazing GC."},{"project_number":"651498","project_phase":"Closeout","date":"2025-05-13","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"H C Olsen is one of the best GCs on campus"},{"project_number":"500942","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"HC Olsen is always committed to providing USC with the best outcome."},{"project_number":"516508","project_phase":"Closeout","date":"2025-03-10","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"One of the best GC's working at USC."},{"project_number":"674499","project_phase":"Construction","date":"2025-02-24","year_month":"Feb 2025","pm_name":"Howard Weissberger","score":5.0,"comment":null},{"project_number":"676470","project_phase":"Closeout","date":"2025-02-24","year_month":"Feb 2025","pm_name":"Howard S Weissberger","score":5.0,"comment":null},{"project_number":"693241","project_phase":"Construction","date":"2025-02-11","year_month":"Feb 2025","pm_name":"Ramon Hernandez","score":5.0,"comment":null},{"project_number":"676470","project_phase":"Construction","date":"2024-11-14","year_month":"Nov 2024","pm_name":"Howard Weissberger","score":5.0,"comment":null}]},{"firm_name":"Vancrest","vendor_type":"Contractor","eval_count":12,"score_count":12,"avg_score":4.81,"pms":["Brooke Ishimoto","Carl Sanders","Carla Barry","Patricia Rosales","Randall Figueroa"],"phases":["Closeout","Construction"],"all_comments":"The contractor was highly responsive to the client's daily requests. All went well, though, and the clients are highly satisfied with the room. | This GC is consistently outstanding. Closeout was effected without any delay. | Extremely satisfied and hope to work with Vancrest again. | Project was completed early and under budget. Client (Housing) was very happy with Vancrest's performance. Hard to beat that. | A great experience overall | A good job overall. Off-campus building and was susceptible to folks trying to access the scaffold outside of work hours. Contractor could have been more proactive in securing the scaffold with screening/netting to reduce risk. | Overall very good experience. Vancrest were very proactive and went above and beyond to address additional areas not called out and assisted with temp protection during rain events for others. Project was challenging using swing stages to complete the tower. Coordinated well with stakeholders and encountered no issues during the work.","projects":[{"project_number":"A2498","project_phase":"Closeout","date":"2026-05-13","year_month":"May 2026","pm_name":"Carl Sanders","score":5.0,"comment":"Overall very good experience. Vancrest were very proactive and went above and beyond to address additional areas not called out and assisted with temp protection during rain events for others. Project was challenging using swing stages to complete the tower. Coordinated well with stakeholders and encountered no issues during the work."},{"project_number":"670188","project_phase":"Closeout","date":"2026-03-11","year_month":"Mar 2026","pm_name":"Carla Barry","score":3.0,"comment":null},{"project_number":"A2496","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":5.0,"comment":"A great experience overall"},{"project_number":"517407","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":4.75,"comment":"A good job overall. Off-campus building and was susceptible to folks trying to access the scaffold outside of work hours. Contractor could have been more proactive in securing the scaffold with screening/netting to reduce risk."},{"project_number":"610922","project_phase":"Closeout","date":"2025-10-15","year_month":"Oct 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":"The contractor was highly responsive to the client's daily requests. All went well, though, and the clients are highly satisfied with the room."},{"project_number":"626541","project_phase":"Closeout","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"434454","project_phase":"Closeout","date":"2025-02-11","year_month":"Feb 2025","pm_name":"Patricia Rosales","score":5.0,"comment":null},{"project_number":"626541","project_phase":"Construction","date":"2024-11-15","year_month":"Nov 2024","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"518053","project_phase":"Closeout","date":"2024-05-21","year_month":"May 2024","pm_name":"Brooke Ishimoto","score":5.0,"comment":null},{"project_number":"399090","project_phase":"Closeout","date":"2024-05-17","year_month":"May 2024","pm_name":"Brooke Ishimoto","score":5.0,"comment":"This GC is consistently outstanding. Closeout was effected without any delay."},{"project_number":"518053","project_phase":"Closeout","date":"2024-03-18","year_month":"Mar 2024","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Extremely satisfied and hope to work with Vancrest again."},{"project_number":"472568","project_phase":"Closeout","date":"2024-03-15","year_month":"Mar 2024","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Project was completed early and under budget. Client (Housing) was very happy with Vancrest's performance. Hard to beat that."}]},{"firm_name":"Kizyma Electric","vendor_type":"Contractor","eval_count":8,"score_count":8,"avg_score":4.86,"pms":["Jenny Walker"],"phases":["Closeout","Construction","Preconstruction"],"all_comments":"","projects":[{"project_number":"562938","project_phase":"Closeout","date":"2026-01-26","year_month":"Jan 2026","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"554044","project_phase":"Construction","date":"2025-01-16","year_month":"Jan 2025","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"562938","project_phase":"Construction","date":"2024-09-26","year_month":"Sep 2024","pm_name":"Jenny Walker","score":4.76,"comment":null},{"project_number":"554049","project_phase":"Construction","date":"2024-07-12","year_month":"Jul 2024","pm_name":"Jenny Walker","score":4.29,"comment":null},{"project_number":"527569","project_phase":"Closeout","date":"2024-07-11","year_month":"Jul 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Construction","date":"2024-04-10","year_month":"Apr 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"562938","project_phase":"Preconstruction","date":"2024-03-05","year_month":"Mar 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Construction","date":"2023-09-13","year_month":"Sep 2023","pm_name":"Jenny Walker","score":4.86,"comment":null}]},{"firm_name":"Hamilton Construction","vendor_type":"Contractor","eval_count":7,"score_count":7,"avg_score":4.24,"pms":["Brooke Ishimoto","Campbell Odening","Carla Barry","Hunter","Hunter Gaines","Jenny Walker"],"phases":["Closeout","Construction"],"all_comments":"This GC came in weeks early and far under budget. All issues were handled quickly. Hamilton has been delivering high quality work at USC for about 30 years. | Hamilton was on time and under budget. | Hamilton had a team who was experienced and with attention to detail. Ryan Campbell was the Super. This made the difference in completing the project, picking up and investigating work that was improper or incomplete by the GC who was dismissed. | Hamilton has been providing GC services to USC for over 20 years, received some good training early on from Joe Back, and is one of our best Contractors.","projects":[{"project_number":"417620","project_phase":"Closeout","date":"2025-07-29","year_month":"Jul 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":"This GC came in weeks early and far under budget. All issues were handled quickly. Hamilton has been delivering high quality work at USC for about 30 years."},{"project_number":"472587","project_phase":"Construction","date":"2025-03-24","year_month":"Mar 2025","pm_name":"Jenny Walker","score":1.48,"comment":null},{"project_number":"417620","project_phase":"Construction","date":"2025-01-22","year_month":"Jan 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":"Hamilton was on time and under budget."},{"project_number":"PR052457","project_phase":"Closeout","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":4.0,"comment":"Hamilton had a team who was experienced and with attention to detail. Ryan Campbell was the Super. This made the difference in completing the project, picking up and investigating work that was improper or incomplete by the GC who was dismissed."},{"project_number":"335636","project_phase":"Closeout","date":"2024-06-11","year_month":"Jun 2024","pm_name":"Hunter Gaines","score":4.6,"comment":null},{"project_number":"335636","project_phase":"Closeout","date":"2024-06-11","year_month":"Jun 2024","pm_name":"Hunter","score":4.6,"comment":null},{"project_number":"137935","project_phase":"Closeout","date":"2023-07-12","year_month":"Jul 2023","pm_name":"Campbell Odening","score":5.0,"comment":"Hamilton has been providing GC services to USC for over 20 years, received some good training early on from Joe Back, and is one of our best Contractors."}]},{"firm_name":"Pinnacle Contracting","vendor_type":"Contractor","eval_count":7,"score_count":7,"avg_score":4.59,"pms":["Bill Cadieux","Brooke Ishimoto","Edward Darmanjyan","Randall Figueroa","Soheil Seiqali"],"phases":["Closeout","Construction"],"all_comments":"Great Company to work with | There was no agency interaction with the contractor. | The GC went above and beyond when serious, unexpected system malfunctions occurred. Out of contract, they sought out the system manufacturer to assist in resolution of malfunctions. | Project not complete yet.","projects":[{"project_number":"A21914","project_phase":"Closeout","date":"2026-04-20","year_month":"Apr 2026","pm_name":"Soheil Seiqali","score":4.4,"comment":null},{"project_number":"A22235","project_phase":"Construction","date":"2026-03-10","year_month":"Mar 2026","pm_name":"Edward Darmanjyan","score":3.85,"comment":"Project not complete yet."},{"project_number":"626511","project_phase":"Closeout","date":"2025-12-12","year_month":"Dec 2025","pm_name":"Edward Darmanjyan","score":4.0,"comment":null},{"project_number":"569762","project_phase":"Closeout","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Great Company to work with"},{"project_number":"558175","project_phase":"Closeout","date":"2025-03-18","year_month":"Mar 2025","pm_name":"Bill Cadieux","score":5.0,"comment":"There was no agency interaction with the contractor."},{"project_number":"472037","project_phase":"Closeout","date":"2025-01-22","year_month":"Jan 2025","pm_name":"Brooke Ishimoto","score":5.0,"comment":null},{"project_number":"472037","project_phase":"Construction","date":"2025-01-22","year_month":"Jan 2025","pm_name":"Brooke Ishimoto","score":4.89,"comment":"The GC went above and beyond when serious, unexpected system malfunctions occurred. Out of contract, they sought out the system manufacturer to assist in resolution of malfunctions."}]},{"firm_name":"Sierra Pacific","vendor_type":"Contractor","eval_count":7,"score_count":7,"avg_score":4.31,"pms":["Edward Darmanjyan","Laura Svoboda","Randall Figueroa","Roberto Villamar"],"phases":["Closeout","Construction"],"all_comments":"A bit slow on the payment process but overall great work. | Sierra Pacific is great at their work and they run operations very smoothly. They need a lot of reminding to submit paperwork, change orders, and invoices. | Sierra-Pacific completed the scope and continued to assist with design corrective scope after the base scope was done. | Sierra Pacific is great on executing work and coordinating with all the appropriate groups. They are lacking in their administrative role with invoicing, closeout documents, etc. The closeout process was extended by months just waiting on paperwork from them. | Sierra Pacific's construction performance on the project was great. The work was high quality and their coordination with the USC groups was fantastic. The closeout process took 10 months due to unresponsive suppliers and Sierra Pacific being busy with other work.","projects":[{"project_number":"592988","project_phase":"Closeout","date":"2026-05-14","year_month":"May 2026","pm_name":"Edward Darmanjyan","score":4.0,"comment":null},{"project_number":"651500","project_phase":"Closeout","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":4.8,"comment":null},{"project_number":"459897","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"A bit slow on the payment process but overall great work."},{"project_number":"579525","project_phase":"Construction","date":"2024-09-10","year_month":"Sep 2024","pm_name":"Laura Svoboda","score":4.24,"comment":"Sierra Pacific is great at their work and they run operations very smoothly. They need a lot of reminding to submit paperwork, change orders, and invoices."},{"project_number":"224538","project_phase":"Construction","date":"2024-05-14","year_month":"May 2024","pm_name":"Roberto Villamar","score":4.76,"comment":"Sierra-Pacific completed the scope and continued to assist with design corrective scope after the base scope was done."},{"project_number":"224848","project_phase":"Closeout","date":"2023-09-12","year_month":"Sep 2023","pm_name":"Laura Svoboda","score":3.75,"comment":"Sierra Pacific is great on executing work and coordinating with all the appropriate groups. They are lacking in their administrative role with invoicing, closeout documents, etc. The closeout process was extended by months just waiting on paperwork from them."},{"project_number":"235449","project_phase":"Closeout","date":"2023-08-08","year_month":"Aug 2023","pm_name":"Laura Svoboda","score":3.6,"comment":"Sierra Pacific's construction performance on the project was great. The work was high quality and their coordination with the USC groups was fantastic. The closeout process took 10 months due to unresponsive suppliers and Sierra Pacific being busy with other work."}]},{"firm_name":"Stern Architects","vendor_type":"Architect","eval_count":7,"score_count":7,"avg_score":4.56,"pms":["Edward Darmanjyan","Randall Figueroa","Randall Figuetoa","Soheil Seiqali"],"phases":["Closeout","Construction","Preconstruction"],"all_comments":"Great Firm, very compentent | Love Stern Architects. Always great to work with. | Great Arch firm well versed in USC processes","projects":[{"project_number":"626511","project_phase":"Closeout","date":"2025-12-12","year_month":"Dec 2025","pm_name":"Edward Darmanjyan","score":4.0,"comment":null},{"project_number":"A17943","project_phase":"Preconstruction","date":"2025-11-11","year_month":"Nov 2025","pm_name":"Soheil Seiqali","score":2.94,"comment":null},{"project_number":"584563","project_phase":"Closeout","date":"2025-10-14","year_month":"Oct 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"584563","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Great Firm, very compentent"},{"project_number":"459897","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Randall Figuetoa","score":5.0,"comment":"Love Stern Architects. Always great to work with."},{"project_number":"500942","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Great Arch firm well versed in USC processes"},{"project_number":"516508","project_phase":"Closeout","date":"2025-03-10","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null}]},{"firm_name":"Statewide Services","vendor_type":"Contractor","eval_count":6,"score_count":6,"avg_score":4.34,"pms":["Ben Cardenas","Randall Figueroa","Richard Snyder"],"phases":["Closeout","Construction"],"all_comments":"Did a good job at the Hotel Pool Deck repair. | Statewide did a great job getting the work done ahead of schedule.  This was not a typical DBB project, it was a repair job but they performed well and got it done.  Communication was good throughout the project.  I would recommend for similar fast-paced projects.","projects":[{"project_number":"664602","project_phase":"Closeout","date":"2025-07-15","year_month":"Jul 2025","pm_name":"Randall Figueroa","score":4.8,"comment":null},{"project_number":"664602","project_phase":"Construction","date":"2025-05-14","year_month":"May 2025","pm_name":"Randall Figueroa","score":5.0,"comment":null},{"project_number":"626532","project_phase":"Construction","date":"2025-04-22","year_month":"Apr 2025","pm_name":"Ben Cardenas","score":2.75,"comment":null},{"project_number":"634310","project_phase":"Closeout","date":"2024-12-18","year_month":"Dec 2024","pm_name":"Richard Snyder","score":4.75,"comment":"Did a good job at the Hotel Pool Deck repair."},{"project_number":"664602","project_phase":"Construction","date":"2024-10-08","year_month":"Oct 2024","pm_name":"Randall Figueroa","score":4.94,"comment":null},{"project_number":"634310","project_phase":"Construction","date":"2024-06-11","year_month":"Jun 2024","pm_name":"Richard Snyder","score":3.79,"comment":"Statewide did a great job getting the work done ahead of schedule.  This was not a typical DBB project, it was a repair job but they performed well and got it done.  Communication was good throughout the project.  I would recommend for similar fast-paced projects."}]},{"firm_name":"KSG Consulting Engineers","vendor_type":"Engineer","eval_count":5,"score_count":0,"avg_score":null,"pms":["John Charrett","Krishna McIver","Laura Svoboda","Roberto Villamar"],"phases":["Construction","Preconstruction"],"all_comments":"","projects":[{"project_number":"286056","project_phase":"Construction","date":"2026-04-21","year_month":"Apr 2026","pm_name":"Krishna McIver","score":null,"comment":null},{"project_number":"164971","project_phase":"Construction","date":"2026-02-10","year_month":"Feb 2026","pm_name":"Laura Svoboda","score":null,"comment":null},{"project_number":"286056","project_phase":"Construction","date":"2024-11-15","year_month":"Nov 2024","pm_name":"John Charrett","score":null,"comment":null},{"project_number":"164971","project_phase":"Preconstruction","date":"2024-05-14","year_month":"May 2024","pm_name":"Roberto Villamar","score":null,"comment":null},{"project_number":"286056","project_phase":"Preconstruction","date":"2023-08-14","year_month":"Aug 2023","pm_name":"Laura Svoboda","score":null,"comment":null}]},{"firm_name":"P2S Inc.","vendor_type":"Engineer","eval_count":5,"score_count":0,"avg_score":null,"pms":["Bill Cadieux","Hector Caballero","Richard Grogan","Soheil Seiqali"],"phases":["Closeout","Preconstruction"],"all_comments":"","projects":[{"project_number":"A27154","project_phase":"Preconstruction","date":"2026-03-10","year_month":"Mar 2026","pm_name":"Hector Caballero","score":null,"comment":null},{"project_number":"A21235","project_phase":"Preconstruction","date":"2025-11-11","year_month":"Nov 2025","pm_name":"Soheil Seiqali","score":null,"comment":null},{"project_number":"558175","project_phase":"Closeout","date":"2025-03-18","year_month":"Mar 2025","pm_name":"Bill Cadieux","score":null,"comment":null},{"project_number":"558175","project_phase":"Closeout","date":"2025-03-18","year_month":"Mar 2025","pm_name":"Bill Cadieux","score":null,"comment":null},{"project_number":"PR041224","project_phase":"Preconstruction","date":"2024-08-13","year_month":"Aug 2024","pm_name":"Richard Grogan","score":null,"comment":null}]},{"firm_name":"Kaplan Chen Kaplan","vendor_type":"Architect","eval_count":4,"score_count":4,"avg_score":4.22,"pms":["Allyson Gipison","Carl Sanders","Krishna McIver"],"phases":["Closeout","Construction"],"all_comments":"The firm is stronger with feasibility studies. I would not select them for their design skills. | Overall good project. Progress visits resulted in additional comments and scope requests that were above and beyond the budget. Important to communicate limits of the project and define punch list as a one-time opportunity to capture items.","projects":[{"project_number":"A13214","project_phase":"Construction","date":"2026-04-21","year_month":"Apr 2026","pm_name":"Krishna McIver","score":4.33,"comment":null},{"project_number":"517407","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":5.0,"comment":"Overall good project. Progress visits resulted in additional comments and scope requests that were above and beyond the budget. Important to communicate limits of the project and define punch list as a one-time opportunity to capture items."},{"project_number":"643318","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":5.0,"comment":null},{"project_number":"144368","project_phase":"Construction","date":"2024-04-09","year_month":"Apr 2024","pm_name":"Allyson Gipison","score":2.56,"comment":"The firm is stronger with feasibility studies. I would not select them for their design skills."}]},{"firm_name":"Murray Company","vendor_type":"Contractor","eval_count":4,"score_count":4,"avg_score":4.62,"pms":["Jenny Walker","Laura Svoboda"],"phases":["Closeout","Construction"],"all_comments":"Murray's field crew was fantastic. They communicated very well with USC to work through unforeseen conditions and meet the project schedule requirements. Murray's office team needed to be pushed a little bit to submit all final change order with appropriate back up and warranty. | Murray did a great job on a difficult project with a lot of unforeseens. They were focused on problem solving and finishing a great project with good quality.","projects":[{"project_number":"554044","project_phase":"Construction","date":"2025-01-16","year_month":"Jan 2025","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"562938","project_phase":"Construction","date":"2024-09-26","year_month":"Sep 2024","pm_name":"Jenny Walker","score":4.93,"comment":null},{"project_number":"270787","project_phase":"Closeout","date":"2024-09-10","year_month":"Sep 2024","pm_name":"Laura Svoboda","score":4.5,"comment":"Murray's field crew was fantastic. They communicated very well with USC to work through unforeseen conditions and meet the project schedule requirements. Murray's office team needed to be pushed a little bit to submit all final change order with appropriate back up and warranty."},{"project_number":"270787","project_phase":"Construction","date":"2023-10-06","year_month":"Oct 2023","pm_name":"Laura Svoboda","score":4.06,"comment":"Murray did a great job on a difficult project with a lot of unforeseens. They were focused on problem solving and finishing a great project with good quality."}]},{"firm_name":"SmithGroup JJR","vendor_type":"Architect","eval_count":4,"score_count":4,"avg_score":3.72,"pms":["Carla Barry","James Fernane"],"phases":["Preconstruction"],"all_comments":"Project has been paused, and not progressing into bid/award phase, yet.","projects":[{"project_number":"472588","project_phase":"Preconstruction","date":"2026-03-11","year_month":"Mar 2026","pm_name":"Carla Barry","score":2.32,"comment":"Project has been paused, and not progressing into bid/award phase, yet."},{"project_number":"467523","project_phase":"Preconstruction","date":"2023-11-15","year_month":"Nov 2023","pm_name":"James Fernane","score":4.19,"comment":null},{"project_number":"432215","project_phase":"Preconstruction","date":"2023-11-15","year_month":"Nov 2023","pm_name":"James Fernane","score":4.19,"comment":null},{"project_number":"467523","project_phase":"Preconstruction","date":"2023-11-15","year_month":"Nov 2023","pm_name":"James Fernane","score":4.19,"comment":null}]},{"firm_name":"WESTERN ALLIED CORPORATION","vendor_type":"Contractor","eval_count":4,"score_count":4,"avg_score":4.97,"pms":["Jenny Walker"],"phases":["Closeout","Construction"],"all_comments":"","projects":[{"project_number":"562938","project_phase":"Construction","date":"2024-09-26","year_month":"Sep 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Closeout","date":"2024-07-11","year_month":"Jul 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Construction","date":"2024-04-10","year_month":"Apr 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Construction","date":"2023-09-13","year_month":"Sep 2023","pm_name":"Jenny Walker","score":4.89,"comment":null}]},{"firm_name":"AIR WEST MECH CONSTRUCTION","vendor_type":"Design-Builder","eval_count":3,"score_count":3,"avg_score":4.17,"pms":["Richard Grogan"],"phases":["Closeout","Construction"],"all_comments":"Minimal site observation and inspection observed.","projects":[{"project_number":"525748","project_phase":"Closeout","date":"2024-05-14","year_month":"May 2024","pm_name":"Richard Grogan","score":4.5,"comment":null},{"project_number":"525748","project_phase":"Construction","date":"2023-10-10","year_month":"Oct 2023","pm_name":"Richard Grogan","score":3.5,"comment":"Minimal site observation and inspection observed."},{"project_number":"525748","project_phase":"Construction","date":"2023-08-08","year_month":"Aug 2023","pm_name":"Richard Grogan","score":4.5,"comment":null}]},{"firm_name":"Clark Construction","vendor_type":"Contractor","eval_count":3,"score_count":3,"avg_score":4.29,"pms":["Carla Barry","James Fernane"],"phases":["Preconstruction"],"all_comments":"","projects":[{"project_number":"472588","project_phase":"Preconstruction","date":"2026-03-11","year_month":"Mar 2026","pm_name":"Carla Barry","score":4.29,"comment":null},{"project_number":"432215","project_phase":"Preconstruction","date":"2023-11-15","year_month":"Nov 2023","pm_name":"James Fernane","score":4.29,"comment":null},{"project_number":"467523","project_phase":"Preconstruction","date":"2023-11-15","year_month":"Nov 2023","pm_name":"James Fernane","score":4.29,"comment":null}]},{"firm_name":"EYP/Page","vendor_type":"Architect","eval_count":3,"score_count":3,"avg_score":4.67,"pms":["Edward Darmanjyan","Jenny Walker"],"phases":["Closeout","Construction","Preconstruction"],"all_comments":"","projects":[{"project_number":"553478","project_phase":"Closeout","date":"2025-12-12","year_month":"Dec 2025","pm_name":"Edward Darmanjyan","score":4.0,"comment":null},{"project_number":"562938","project_phase":"Construction","date":"2024-09-26","year_month":"Sep 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"562938","project_phase":"Preconstruction","date":"2024-03-05","year_month":"Mar 2024","pm_name":"Jenny Walker","score":5.0,"comment":null}]},{"firm_name":"KPFF","vendor_type":"Engineer","eval_count":3,"score_count":0,"avg_score":null,"pms":["Hunter Gaines","Laura Svoboda","Roberto Villamar"],"phases":["Closeout","Construction"],"all_comments":"","projects":[{"project_number":"270787","project_phase":"Closeout","date":"2024-09-10","year_month":"Sep 2024","pm_name":"Laura Svoboda","score":null,"comment":null},{"project_number":"335636","project_phase":"Closeout","date":"2024-06-11","year_month":"Jun 2024","pm_name":"Hunter Gaines","score":null,"comment":null},{"project_number":"329987","project_phase":"Construction","date":"2024-01-24","year_month":"Jan 2024","pm_name":"Roberto Villamar","score":null,"comment":null}]},{"firm_name":"Kimley-Horn","vendor_type":"Engineer","eval_count":3,"score_count":0,"avg_score":null,"pms":["Karen Reed","Laura Svoboda"],"phases":["Construction","Preconstruction"],"all_comments":"","projects":[{"project_number":"424394","project_phase":"Construction","date":"2024-09-11","year_month":"Sep 2024","pm_name":"Karen Reed","score":null,"comment":null},{"project_number":"558083","project_phase":"Preconstruction","date":"2024-03-12","year_month":"Mar 2024","pm_name":"Laura Svoboda","score":null,"comment":null},{"project_number":"558083","project_phase":"Preconstruction","date":"2024-02-21","year_month":"Feb 2024","pm_name":"Karen Reed","score":null,"comment":null}]},{"firm_name":"MYNG Architects","vendor_type":"Architect","eval_count":3,"score_count":3,"avg_score":4.75,"pms":["Jenny Walker"],"phases":["Closeout","Construction"],"all_comments":"","projects":[{"project_number":"527569","project_phase":"Closeout","date":"2024-07-11","year_month":"Jul 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Construction","date":"2024-04-10","year_month":"Apr 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Construction","date":"2023-09-13","year_month":"Sep 2023","pm_name":"Jenny Walker","score":4.25,"comment":null}]},{"firm_name":"Pro Builders Inc.","vendor_type":"Contractor","eval_count":3,"score_count":3,"avg_score":3.87,"pms":["Dianna Cassey","Edward Darmanjyan","Lena Bississo"],"phases":["Closeout","Construction"],"all_comments":"Overall, they were a pleasure to work with and very helpful and professional. | This is a contractor that I would not put on a bid list or choose to use on future projects.","projects":[{"project_number":"662345","project_phase":"Construction","date":"2026-04-23","year_month":"Apr 2026","pm_name":"Dianna Cassey","score":2.62,"comment":"This is a contractor that I would not put on a bid list or choose to use on future projects."},{"project_number":"553478","project_phase":"Closeout","date":"2025-12-12","year_month":"Dec 2025","pm_name":"Edward Darmanjyan","score":4.0,"comment":null},{"project_number":"613414","project_phase":"Closeout","date":"2025-12-09","year_month":"Dec 2025","pm_name":"Lena Bississo","score":5.0,"comment":"Overall, they were a pleasure to work with and very helpful and professional."}]},{"firm_name":"RBE Root Building Engineers","vendor_type":"Engineer","eval_count":3,"score_count":0,"avg_score":null,"pms":["Ben Cardenas","Richard Grogan"],"phases":["Closeout","Construction","Preconstruction"],"all_comments":"","projects":[{"project_number":"509573","project_phase":"Construction","date":"2025-04-10","year_month":"Apr 2025","pm_name":"Richard Grogan","score":null,"comment":null},{"project_number":"524620","project_phase":"Closeout","date":"2024-09-16","year_month":"Sep 2024","pm_name":"Ben Cardenas","score":null,"comment":null},{"project_number":"524620","project_phase":"Preconstruction","date":"2023-09-14","year_month":"Sep 2023","pm_name":"Ben Cardenas","score":null,"comment":null}]},{"firm_name":"RC Drywall","vendor_type":"Contractor","eval_count":3,"score_count":3,"avg_score":5.0,"pms":["Jenny Walker"],"phases":["Closeout","Construction"],"all_comments":"","projects":[{"project_number":"562938","project_phase":"Closeout","date":"2026-01-26","year_month":"Jan 2026","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"554044","project_phase":"Construction","date":"2025-01-16","year_month":"Jan 2025","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"562938","project_phase":"Construction","date":"2024-09-26","year_month":"Sep 2024","pm_name":"Jenny Walker","score":5.0,"comment":null}]},{"firm_name":"Red Pointe Roofing","vendor_type":"Contractor","eval_count":3,"score_count":2,"avg_score":4.38,"pms":["Ben Cardenas","Carl Sanders","Soheil Seiqali"],"phases":["Closeout"],"all_comments":"Red Pointe delivered a great overall project which included 3 consecutive Saturday crane lifts. AHJ were slow to close out the project and Red Pointe leveraged their relationship with the AHJ to schedule an additional site meeting to close out the project. Red Pointe were very responsive to follow up items post completion which were ultimately unrelated to the work performed but offered solutions to address issues in the short-term.","projects":[{"project_number":"662479","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":5.0,"comment":"Red Pointe delivered a great overall project which included 3 consecutive Saturday crane lifts. AHJ were slow to close out the project and Red Pointe leveraged their relationship with the AHJ to schedule an additional site meeting to close out the project. Red Pointe were very responsive to follow up items post completion which were ultimately unrelated to the work performed but offered solutions to address issues in the short-term."},{"project_number":"A20999","project_phase":"Closeout","date":"2025-12-10","year_month":"Dec 2025","pm_name":"Soheil Seiqali","score":3.75,"comment":null},{"project_number":"564409","project_phase":"Closeout","date":"2025-04-02","year_month":"Apr 2025","pm_name":"Ben Cardenas","score":null,"comment":null}]},{"firm_name":"SAA Associates","vendor_type":"Architect","eval_count":3,"score_count":3,"avg_score":4.71,"pms":["Adler Romero","Jenny Walker"],"phases":["Construction"],"all_comments":"Design team met the requirements of the project.","projects":[{"project_number":"554044","project_phase":"Construction","date":"2025-01-16","year_month":"Jan 2025","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"554049","project_phase":"Construction","date":"2024-07-12","year_month":"Jul 2024","pm_name":"Jenny Walker","score":4.5,"comment":null},{"project_number":"518052","project_phase":"Construction","date":"2023-09-12","year_month":"Sep 2023","pm_name":"Adler Romero","score":4.62,"comment":"Design team met the requirements of the project."}]},{"firm_name":"Whiting Turner","vendor_type":"Contractor","eval_count":3,"score_count":3,"avg_score":3.75,"pms":["Carla Barry"],"phases":["Closeout","Construction"],"all_comments":"WT works well in a hospital setting, diligent with IOR, DPOR and OSHPD. | Schedule delays were due to change in roofing spec (owner driven) and OSHPD ACD's  (existing conditions.) Cost and time were easily resolved. | Project was descoped to exclude final tie-ins, which would be later managed by Keck and a different GC. Whiting Turner had COPCD disputes during construction, which were resolved with prompt action by WT. WT promptly assisted to resolve dispute with one difficult sub, Kizyma.","projects":[{"project_number":"166724","project_phase":"Closeout","date":"2026-03-11","year_month":"Mar 2026","pm_name":"Carla Barry","score":4.0,"comment":"Project was descoped to exclude final tie-ins, which would be later managed by Keck and a different GC. Whiting Turner had COPCD disputes during construction, which were resolved with prompt action by WT. WT promptly assisted to resolve dispute with one difficult sub, Kizyma."},{"project_number":"PR053175","project_phase":"Construction","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":3.67,"comment":"WT works well in a hospital setting, diligent with IOR, DPOR and OSHPD."},{"project_number":"PR052787","project_phase":"Construction","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":3.57,"comment":"Schedule delays were due to change in roofing spec (owner driven) and OSHPD ACD's  (existing conditions.) Cost and time were easily resolved."}]},{"firm_name":"BGI Security Consultants","vendor_type":"Engineer","eval_count":2,"score_count":0,"avg_score":null,"pms":["Ben Cardenas"],"phases":["Construction","Preconstruction"],"all_comments":"","projects":[{"project_number":"703109","project_phase":"Preconstruction","date":"2025-09-09","year_month":"Sep 2025","pm_name":"Ben Cardenas","score":null,"comment":null},{"project_number":"626532","project_phase":"Construction","date":"2025-04-22","year_month":"Apr 2025","pm_name":"Ben Cardenas","score":null,"comment":null}]},{"firm_name":"COSCO FIRE PROTECTION, INC","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":4.67,"pms":["Jenny Walker"],"phases":["Closeout","Construction"],"all_comments":"","projects":[{"project_number":"527569","project_phase":"Closeout","date":"2024-07-11","year_month":"Jul 2024","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"527569","project_phase":"Construction","date":"2024-04-10","year_month":"Apr 2024","pm_name":"Jenny Walker","score":4.33,"comment":null}]},{"firm_name":"C|A Architects","vendor_type":"Architect","eval_count":2,"score_count":2,"avg_score":3.95,"pms":["Carla Barry","Richard Grogan"],"phases":["Closeout","Preconstruction"],"all_comments":"Project was descoped and turned over to Keck for final ATS tie-ins. Therefore, no record drawings were applicable. However, c|a engaged timely with field observation report necessary to supplant the GC relative to final tie-ins scope.","projects":[{"project_number":"166724","project_phase":"Closeout","date":"2026-03-11","year_month":"Mar 2026","pm_name":"Carla Barry","score":3.0,"comment":"Project was descoped and turned over to Keck for final ATS tie-ins. Therefore, no record drawings were applicable. However, c|a engaged timely with field observation report necessary to supplant the GC relative to final tie-ins scope."},{"project_number":"447082","project_phase":"Preconstruction","date":"2023-08-08","year_month":"Aug 2023","pm_name":"Richard Grogan","score":4.9,"comment":null}]},{"firm_name":"Global Building Corporation","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":4.47,"pms":["Adler Romero","Randall Figueroa"],"phases":["Closeout","Construction"],"all_comments":"Global can be a bit rough in the start but the end product is great. | GC performance was acceptable, there was a required change to project original PM by GC due to lack of communication with CCD, after change was made project moved swiftly.","projects":[{"project_number":"491741","project_phase":"Closeout","date":"2025-03-11","year_month":"Mar 2025","pm_name":"Randall Figueroa","score":5.0,"comment":"Global can be a bit rough in the start but the end product is great."},{"project_number":"518052","project_phase":"Construction","date":"2023-09-12","year_month":"Sep 2023","pm_name":"Adler Romero","score":3.95,"comment":"GC performance was acceptable, there was a required change to project original PM by GC due to lack of communication with CCD, after change was made project moved swiftly."}]},{"firm_name":"Huitt-Zollars","vendor_type":"Architect","eval_count":2,"score_count":2,"avg_score":3.75,"pms":["Carla Barry"],"phases":["Construction"],"all_comments":"Design team changed key personnel during the project, PM, PArch and MEOR. This caused gaps in CA, but was recovered by new team fairly well. Steve White DPOR, is diligent, accurate, knowledgeable and timely. | Project is OSHPD1 and requires diligence of site visits, responsive RFI's and quality submittal reviews. Team worked very well with IOR and OSHPD field staff.","projects":[{"project_number":"PR053175","project_phase":"Construction","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":3.8,"comment":"Design team changed key personnel during the project, PM, PArch and MEOR. This caused gaps in CA, but was recovered by new team fairly well. Steve White DPOR, is diligent, accurate, knowledgeable and timely."},{"project_number":"PR052787","project_phase":"Construction","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":3.7,"comment":"Project is OSHPD1 and requires diligence of site visits, responsive RFI's and quality submittal reviews. Team worked very well with IOR and OSHPD field staff."}]},{"firm_name":"IRC (Independent Roofing Consultants)","vendor_type":"Engineer","eval_count":2,"score_count":0,"avg_score":null,"pms":["Carl Sanders"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"A2496","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":null,"comment":null},{"project_number":"662479","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":null,"comment":null}]},{"firm_name":"KC Restoration","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":4.33,"pms":["Carl Sanders","Krishna McIver"],"phases":["Closeout","Construction"],"all_comments":"Failed tile has been reported since the project completion. Concerns were raised during the installation that application appeared to differ from the method's discussed upfront. KC Restoration were very responsive to address failed tile and survey overall install to confirm. KC Restoration will continue to monitor the application moving forward.","projects":[{"project_number":"A13214","project_phase":"Construction","date":"2026-04-21","year_month":"Apr 2026","pm_name":"Krishna McIver","score":4.4,"comment":null},{"project_number":"643318","project_phase":"Closeout","date":"2026-03-04","year_month":"Mar 2026","pm_name":"Carl Sanders","score":4.25,"comment":"Failed tile has been reported since the project completion. Concerns were raised during the installation that application appeared to differ from the method's discussed upfront. KC Restoration were very responsive to address failed tile and survey overall install to confirm. KC Restoration will continue to monitor the application moving forward."}]},{"firm_name":"LFA (Labib Funk & Associates)","vendor_type":"Engineer","eval_count":2,"score_count":0,"avg_score":null,"pms":["Edward Darmanjyan","Karen Reed"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"668803","project_phase":"Construction","date":"2026-04-15","year_month":"Apr 2026","pm_name":"Edward Darmanjyan","score":null,"comment":null},{"project_number":"423733","project_phase":"Construction","date":"2024-09-11","year_month":"Sep 2024","pm_name":"Karen Reed","score":null,"comment":null}]},{"firm_name":"Other Architect","vendor_type":"Architect","eval_count":2,"score_count":2,"avg_score":4.83,"pms":["Carla Barry","Jenny Walker"],"phases":["Closeout"],"all_comments":"Several ASR's were negotiated to bring ME costs in alignment of expectations.","projects":[{"project_number":"562938","project_phase":"Closeout","date":"2026-01-26","year_month":"Jan 2026","pm_name":"Jenny Walker","score":5.0,"comment":null},{"project_number":"PR052457","project_phase":"Closeout","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":4.67,"comment":"Several ASR's were negotiated to bring ME costs in alignment of expectations."}]},{"firm_name":"PBS Engineers Inc","vendor_type":"Engineer","eval_count":2,"score_count":0,"avg_score":null,"pms":["Hector Corella","Roberto Villamar"],"phases":["Closeout","Construction"],"all_comments":"","projects":[{"project_number":"342910","project_phase":"Closeout","date":"2024-05-14","year_month":"May 2024","pm_name":"Hector Corella","score":null,"comment":null},{"project_number":"342910","project_phase":"Construction","date":"2024-05-14","year_month":"May 2024","pm_name":"Roberto Villamar","score":null,"comment":null}]},{"firm_name":"PPC A/C  also PPC Plumbing","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":4.36,"pms":["Roberto Villamar"],"phases":["Construction"],"all_comments":"The contractor performed their scope well but can improve on managing Fire Alarm subs and Honeywell. | The contractor met all of our challenges and adapted well.","projects":[{"project_number":"342910","project_phase":"Construction","date":"2024-05-14","year_month":"May 2024","pm_name":"Roberto Villamar","score":3.81,"comment":"The contractor performed their scope well but can improve on managing Fire Alarm subs and Honeywell."},{"project_number":"329987","project_phase":"Construction","date":"2024-01-24","year_month":"Jan 2024","pm_name":"Roberto Villamar","score":4.9,"comment":"The contractor met all of our challenges and adapted well."}]},{"firm_name":"Perera Construction","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":3.93,"pms":["Edward Darmanjyan","Paul Risko"],"phases":["Closeout","Construction"],"all_comments":"This small project was done as requested with no resistance and I would gladly work with this team again.","projects":[{"project_number":"668803","project_phase":"Construction","date":"2026-04-15","year_month":"Apr 2026","pm_name":"Edward Darmanjyan","score":2.86,"comment":null},{"project_number":"USC0001291","project_phase":"Closeout","date":"2025-06-17","year_month":"Jun 2025","pm_name":"Paul Risko","score":5.0,"comment":"This small project was done as requested with no resistance and I would gladly work with this team again."}]},{"firm_name":"SRY Designs","vendor_type":"Architect","eval_count":2,"score_count":2,"avg_score":4.35,"pms":["Richard Grogan"],"phases":["Closeout","Construction"],"all_comments":"Quality was high, performed well, low change order rate. | The quality is good for technical projects, the value for money may not be as efficient as possible.","projects":[{"project_number":"393252","project_phase":"Closeout","date":"2025-06-10","year_month":"Jun 2025","pm_name":"Richard Grogan","score":4.33,"comment":"Quality was high, performed well, low change order rate."},{"project_number":"393252","project_phase":"Construction","date":"2024-07-10","year_month":"Jul 2024","pm_name":"Richard Grogan","score":4.36,"comment":"The quality is good for technical projects, the value for money may not be as efficient as possible."}]},{"firm_name":"Snyder Langston","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":3.73,"pms":["Howard Weissberger"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"517571","project_phase":"Construction","date":"2025-01-27","year_month":"Jan 2025","pm_name":"Howard Weissberger","score":3.75,"comment":null},{"project_number":"606243","project_phase":"Construction","date":"2025-01-27","year_month":"Jan 2025","pm_name":"Howard Weissberger","score":3.71,"comment":null}]},{"firm_name":"Studio Plus","vendor_type":"Architect","eval_count":2,"score_count":2,"avg_score":4.38,"pms":["Campbell Odening","Edward Darmanjyan"],"phases":["Preconstruction"],"all_comments":"The design team of Studio Plus and Salas O'Brien capably executed the design of this mid-size lab project.","projects":[{"project_number":"A54220","project_phase":"Preconstruction","date":"2026-04-15","year_month":"Apr 2026","pm_name":"Edward Darmanjyan","score":3.81,"comment":null},{"project_number":"473655","project_phase":"Preconstruction","date":"2023-07-11","year_month":"Jul 2023","pm_name":"Campbell Odening","score":4.96,"comment":"The design team of Studio Plus and Salas O'Brien capably executed the design of this mid-size lab project."}]},{"firm_name":"TSP Roofing","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":3.2,"pms":["Soheil Seiqali"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"A31663","project_phase":"Closeout","date":"2026-05-13","year_month":"May 2026","pm_name":"Soheil Seiqali","score":3.4,"comment":null},{"project_number":"A17361","project_phase":"Closeout","date":"2026-03-10","year_month":"Mar 2026","pm_name":"Soheil Seiqali","score":3.0,"comment":null}]},{"firm_name":"Wesley Thomas","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":4.83,"pms":["Richard Grogan"],"phases":["Closeout","Construction"],"all_comments":"Great work, the field personnel did good work, the equipment has functioned well. | The performance was good as this was the contractor's first USC project. The few items of issue will likely be improved in future work as their firm becomes more familiar with the USC specific rules, process, and standards.","projects":[{"project_number":"393252","project_phase":"Closeout","date":"2025-06-10","year_month":"Jun 2025","pm_name":"Richard Grogan","score":5.0,"comment":"Great work, the field personnel did good work, the equipment has functioned well."},{"project_number":"393252","project_phase":"Construction","date":"2024-07-10","year_month":"Jul 2024","pm_name":"Richard Grogan","score":4.65,"comment":"The performance was good as this was the contractor's first USC project. The few items of issue will likely be improved in future work as their firm becomes more familiar with the USC specific rules, process, and standards."}]},{"firm_name":"Xcel Mechanical","vendor_type":"Contractor","eval_count":2,"score_count":2,"avg_score":2.04,"pms":["Karen Reed","Laura Svoboda"],"phases":["Construction"],"all_comments":"Xcel was not prepared to manage an underground utility project. Struggled with ebuilder, struggled to manage subcontractors, struggled to coordinate with the field and communicate issues, schedule delays, unforeseen conditions, etc with the USC/design team. | Do not use Xcel Mechanical for critical or difficult projects with the potential for unforeseen conditions or design changes. Their management team is not honest and is not focused on problem solving. They will say 'Yes' to anything and then change their story later or not do what they said they'd do.","projects":[{"project_number":"423733","project_phase":"Construction","date":"2024-09-11","year_month":"Sep 2024","pm_name":"Karen Reed","score":2.2,"comment":"Xcel was not prepared to manage an underground utility project. Struggled with ebuilder, struggled to manage subcontractors, struggled to coordinate with the field and communicate issues, schedule delays, unforeseen conditions, etc with the USC/design team."},{"project_number":"423733","project_phase":"Construction","date":"2023-10-06","year_month":"Oct 2023","pm_name":"Laura Svoboda","score":1.88,"comment":"Do not use Xcel Mechanical for critical or difficult projects with the potential for unforeseen conditions or design changes. Their management team is not honest and is not focused on problem solving. They will say 'Yes' to anything and then change their story later or not do what they said they'd do."}]},{"firm_name":"Xcel Mechanical","vendor_type":"Design-Builder","eval_count":2,"score_count":2,"avg_score":3.75,"pms":["Hector Caballero","Krishna McIver"],"phases":["Construction"],"all_comments":"Would work with them again in future projects. | Closer collaboration between the field staff and engineering office is recommended.","projects":[{"project_number":"342911","project_phase":"Construction","date":"2026-01-29","year_month":"Jan 2026","pm_name":"Krishna McIver","score":4.0,"comment":"Would work with them again in future projects."},{"project_number":"342911","project_phase":"Construction","date":"2024-07-09","year_month":"Jul 2024","pm_name":"Hector Caballero","score":3.5,"comment":"Closer collaboration between the field staff and engineering office is recommended."}]},{"firm_name":"ACCO Engineering","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":4.86,"pms":["Richard Grogan"],"phases":["Construction"],"all_comments":"Great project, very cost efficient, customer very happy, CCD management very happy. Saved the project through design flexibility and team work. Delivered as GMP with Mechanical Prime. Saved a great deal of cost and complexity with this model. Hamilton Construction provided sub-General Contractor work, the project lead was fantastic on details and requirements.","projects":[{"project_number":"PR041224","project_phase":"Construction","date":"2025-08-12","year_month":"Aug 2025","pm_name":"Richard Grogan","score":4.86,"comment":"Great project, very cost efficient, customer very happy, CCD management very happy. Saved the project through design flexibility and team work. Delivered as GMP with Mechanical Prime. Saved a great deal of cost and complexity with this model. Hamilton Construction provided sub-General Contractor work, the project lead was fantastic on details and requirements."}]},{"firm_name":"Airwest Mechanical Construction Inc.","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":2.52,"pms":["Jaycee Borja"],"phases":["Construction"],"all_comments":"The contractor exhibited poor planning and inadequate resource allocation leading to significant delays in the project schedule. Additional, daily reports were not uploaded properly and in a timely manner. Payment applications were submitted incomplete documentation, and responses to inquiries were delayed, further contributing to delays in process and prolonged project closeout.","projects":[{"project_number":"563176","project_phase":"Construction","date":"2025-01-14","year_month":"Jan 2025","pm_name":"Jaycee Borja","score":2.52,"comment":"The contractor exhibited poor planning and inadequate resource allocation leading to significant delays in the project schedule. Additional, daily reports were not uploaded properly and in a timely manner. Payment applications were submitted incomplete documentation, and responses to inquiries were delayed, further contributing to delays in process and prolonged project closeout."}]},{"firm_name":"Austin Commercial","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":3.05,"pms":["Allyson Gipison"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"144368","project_phase":"Construction","date":"2024-04-09","year_month":"Apr 2024","pm_name":"Allyson Gipison","score":3.05,"comment":null}]},{"firm_name":"Del Amo","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":4.6,"pms":["Hunter Gaines"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"PR051450","project_phase":"Closeout","date":"2024-06-11","year_month":"Jun 2024","pm_name":"Hunter Gaines","score":4.6,"comment":null}]},{"firm_name":"Fond Hart Schneider Partners","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":4.0,"pms":["Edward Darmanjyan"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"592988","project_phase":"Closeout","date":"2026-05-14","year_month":"May 2026","pm_name":"Edward Darmanjyan","score":4.0,"comment":null}]},{"firm_name":"Goss Engineering","vendor_type":"Engineer","eval_count":1,"score_count":0,"avg_score":null,"pms":["Laura Svoboda"],"phases":["Preconstruction"],"all_comments":"","projects":[{"project_number":"444482","project_phase":"Preconstruction","date":"2023-08-14","year_month":"Aug 2023","pm_name":"Laura Svoboda","score":null,"comment":null}]},{"firm_name":"HED Architects","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":3.41,"pms":["Rebecca Hattarki"],"phases":["Preconstruction"],"all_comments":"","projects":[{"project_number":"A3398","project_phase":"Preconstruction","date":"2026-05-05","year_month":"May 2026","pm_name":"Rebecca Hattarki","score":3.41,"comment":null}]},{"firm_name":"Hathaway Dinwiddie","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":4.87,"pms":["Ben Cardenas"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"482534","project_phase":"Construction","date":"2024-03-21","year_month":"Mar 2024","pm_name":"Ben Cardenas","score":4.87,"comment":null}]},{"firm_name":"IDS Group","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":3.33,"pms":["Jenny Walker"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"472587","project_phase":"Construction","date":"2025-03-24","year_month":"Mar 2025","pm_name":"Jenny Walker","score":3.33,"comment":null}]},{"firm_name":"LFA (Labib Funk & Associates)","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":3.29,"pms":["Laura Svoboda"],"phases":["Construction"],"all_comments":"Labib Funk didn't do much work on the project. The majority of the design scope and involvement was by P2S. Labib came on site for 1 field walk at the end of the project. P2S participated in multiple site walks and was more hands on. Project was mostly mechanical scope.","projects":[{"project_number":"423733","project_phase":"Construction","date":"2023-10-06","year_month":"Oct 2023","pm_name":"Laura Svoboda","score":3.29,"comment":"Labib Funk didn't do much work on the project. The majority of the design scope and involvement was by P2S. Labib came on site for 1 field walk at the end of the project. P2S participated in multiple site walks and was more hands on. Project was mostly mechanical scope."}]},{"firm_name":"Lee Rothrock","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":3.63,"pms":["Edward Darmanjyan"],"phases":["Construction"],"all_comments":"After the failure to have the materials delivered on time, GC put forth a high level of effort to completed the project at an expedited pace.","projects":[{"project_number":"592988","project_phase":"Construction","date":"2026-02-10","year_month":"Feb 2026","pm_name":"Edward Darmanjyan","score":3.63,"comment":"After the failure to have the materials delivered on time, GC put forth a high level of effort to completed the project at an expedited pace."}]},{"firm_name":"MB Herzog Electric","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":3.88,"pms":["Krishna McIver"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"286056","project_phase":"Construction","date":"2026-04-21","year_month":"Apr 2026","pm_name":"Krishna McIver","score":3.88,"comment":null}]},{"firm_name":"Marco Cabibbo","vendor_type":"Engineer","eval_count":1,"score_count":0,"avg_score":null,"pms":["Bill Cadieux"],"phases":["Preconstruction"],"all_comments":"","projects":[{"project_number":"558175","project_phase":"Preconstruction","date":"2023-10-10","year_month":"Oct 2023","pm_name":"Bill Cadieux","score":null,"comment":null}]},{"firm_name":"Morrow-Meadows","vendor_type":"Design-Builder","eval_count":1,"score_count":1,"avg_score":3.0,"pms":["Carla Barry"],"phases":["Closeout"],"all_comments":"Morrow Meadows had in-house engineering. Knowledgeable and timely.","projects":[{"project_number":"594582","project_phase":"Closeout","date":"2026-03-11","year_month":"Mar 2026","pm_name":"Carla Barry","score":3.0,"comment":"Morrow Meadows had in-house engineering. Knowledgeable and timely."}]},{"firm_name":"Murray Co.","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":5.0,"pms":["Jenny Walker"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"562938","project_phase":"Closeout","date":"2026-01-26","year_month":"Jan 2026","pm_name":"Jenny Walker","score":5.0,"comment":null}]},{"firm_name":"NEIMAN GROUP","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":3.67,"pms":["Raef Hajjali"],"phases":["Preconstruction"],"all_comments":"Was not involved in the design and approval phase.","projects":[{"project_number":"423849","project_phase":"Preconstruction","date":"2024-04-05","year_month":"Apr 2024","pm_name":"Raef Hajjali","score":3.67,"comment":"Was not involved in the design and approval phase."}]},{"firm_name":"Optima Energy, Inc","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":5.0,"pms":["Richard Grogan"],"phases":["Construction"],"all_comments":"Great work on LED lighting projects, great support and customer service, great field coordination. Optima made the project easy, accurage, and worked around the user needs. Definitely use them again for LED lighting replacement work.","projects":[{"project_number":"509573","project_phase":"Construction","date":"2025-04-10","year_month":"Apr 2025","pm_name":"Richard Grogan","score":5.0,"comment":"Great work on LED lighting projects, great support and customer service, great field coordination. Optima made the project easy, accurage, and worked around the user needs. Definitely use them again for LED lighting replacement work."}]},{"firm_name":"Other Design-Builder","vendor_type":"Design-Builder","eval_count":1,"score_count":1,"avg_score":3.0,"pms":["Carla Barry"],"phases":["Closeout"],"all_comments":"Design Builder's AE did not visit jobsite for critical site condition changes, causing several design changes with OSHPD impacting the schedule.","projects":[{"project_number":"PR052162","project_phase":"Closeout","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":3.0,"comment":"Design Builder's AE did not visit jobsite for critical site condition changes, causing several design changes with OSHPD impacting the schedule."}]},{"firm_name":"PACIFIC FLOOR COMPANY, INC.","vendor_type":"Design-Builder","eval_count":1,"score_count":0,"avg_score":null,"pms":["Randall Figueroa"],"phases":["Construction"],"all_comments":"This was a small water damaged hardwood floor area that needed to be removed and reinstalled, sanded and finished. All completed by Pacific Floor Co., Inc.","projects":[{"project_number":"519767","project_phase":"Construction","date":"2023-11-16","year_month":"Nov 2023","pm_name":"Randall Figueroa","score":null,"comment":"This was a small water damaged hardwood floor area that needed to be removed and reinstalled, sanded and finished. All completed by Pacific Floor Co., Inc."}]},{"firm_name":"PBWS Architects","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":4.0,"pms":["Hunter Gaines"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"PR051450","project_phase":"Closeout","date":"2024-06-11","year_month":"Jun 2024","pm_name":"Hunter Gaines","score":4.0,"comment":null}]},{"firm_name":"Parker Brown Inc.","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":4.2,"pms":["Carla Barry"],"phases":["Closeout"],"all_comments":"Contractor was given added scope to add a card reader after punch was completed. Long lead hardware extended the construction schedule, but the work was performed on weekends and no impact to occupants.","projects":[{"project_number":"243247","project_phase":"Closeout","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":4.2,"comment":"Contractor was given added scope to add a card reader after punch was completed. Long lead hardware extended the construction schedule, but the work was performed on weekends and no impact to occupants."}]},{"firm_name":"Perkins Eastman","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":4.67,"pms":["Carl Sanders"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"664961","project_phase":"Closeout","date":"2026-03-12","year_month":"Mar 2026","pm_name":"Carl Sanders","score":4.67,"comment":null}]},{"firm_name":"Priority Roofing","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":5.0,"pms":["Jenny Walker"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"554044","project_phase":"Construction","date":"2025-01-16","year_month":"Jan 2025","pm_name":"Jenny Walker","score":5.0,"comment":null}]},{"firm_name":"Psomas","vendor_type":"Engineer","eval_count":1,"score_count":0,"avg_score":null,"pms":["Edward Darmanjyan"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"668803","project_phase":"Construction","date":"2026-04-15","year_month":"Apr 2026","pm_name":"Edward Darmanjyan","score":null,"comment":null}]},{"firm_name":"Red Pointe Roofing, LP","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":3.54,"pms":["Pedrum Vassetizadeh"],"phases":["Construction"],"all_comments":"The project hit significant delays due to rains and weather condition. The Roofing contractor was not very responsive and proactive , however they did complete the job to satisfaction.","projects":[{"project_number":"508644","project_phase":"Construction","date":"2023-09-25","year_month":"Sep 2023","pm_name":"Pedrum Vassetizadeh","score":3.54,"comment":"The project hit significant delays due to rains and weather condition. The Roofing contractor was not very responsive and proactive , however they did complete the job to satisfaction."}]},{"firm_name":"Siapin Horticulture Inc","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":3.1,"pms":["Edward Darmanjyan"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"668803","project_phase":"Construction","date":"2026-04-15","year_month":"Apr 2026","pm_name":"Edward Darmanjyan","score":3.1,"comment":null}]},{"firm_name":"Southern California Flagpole Company, Inc","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":2.25,"pms":["Laura Chen"],"phases":["Closeout"],"all_comments":"I would not suggest to use this vendor on future projects.","projects":[{"project_number":"571681","project_phase":"Closeout","date":"2024-10-08","year_month":"Oct 2024","pm_name":"Laura Chen","score":2.25,"comment":"I would not suggest to use this vendor on future projects."}]},{"firm_name":"Taller Dos Flores","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":4.14,"pms":["Edward Darmanjyan"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"A22235","project_phase":"Construction","date":"2026-03-10","year_month":"Mar 2026","pm_name":"Edward Darmanjyan","score":4.14,"comment":null}]},{"firm_name":"Ted Ortega dba Peregrine Electric","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":2.5,"pms":["Carla Barry"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"670188","project_phase":"Closeout","date":"2026-03-11","year_month":"Mar 2026","pm_name":"Carla Barry","score":2.5,"comment":null}]},{"firm_name":"Terry Hart","vendor_type":"Architect","eval_count":1,"score_count":1,"avg_score":3.89,"pms":["Edward Darmanjyan"],"phases":["Construction"],"all_comments":"Was a pleasure working with Terry Hart.","projects":[{"project_number":"592988","project_phase":"Construction","date":"2026-02-10","year_month":"Feb 2026","pm_name":"Edward Darmanjyan","score":3.89,"comment":"Was a pleasure working with Terry Hart."}]},{"firm_name":"Western Allied","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":5.0,"pms":["Jenny Walker"],"phases":["Construction"],"all_comments":"","projects":[{"project_number":"554044","project_phase":"Construction","date":"2025-01-16","year_month":"Jan 2025","pm_name":"Jenny Walker","score":5.0,"comment":null}]},{"firm_name":"Western Allied Corp","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":5.0,"pms":["Jenny Walker"],"phases":["Closeout"],"all_comments":"","projects":[{"project_number":"562938","project_phase":"Closeout","date":"2026-01-26","year_month":"Jan 2026","pm_name":"Jenny Walker","score":5.0,"comment":null}]},{"firm_name":"YESCO Signs LLC","vendor_type":"Contractor","eval_count":1,"score_count":1,"avg_score":3.4,"pms":["Carla Barry"],"phases":["Closeout"],"all_comments":"YESCO is knowledgeable of the USC standard signs and turns them around quickly. The work is smooth. The office side could use improvement.","projects":[{"project_number":"USC0000366","project_phase":"Closeout","date":"2024-11-11","year_month":"Nov 2024","pm_name":"Carla Barry","score":3.4,"comment":"YESCO is knowledgeable of the USC standard signs and turns them around quickly. The work is smooth. The office side could use improvement."}]}];
+const FIRM_INDEX = {};
+ALL_DATA.forEach((f,i) => FIRM_INDEX[i]=f);
+const AI_CACHE = {
+  "D. Michael Hamner AIA||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Consistently outstanding architect delivering exceptional quality and value at USC.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Exceptional quality across all project aspects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Outstanding value for cost vs. service</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>High quality work at modest price</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Strong long-term relationship with USC</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Goes above and beyond scope regularly</span></div></div>`,
+  "Simovich & Sons||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Top-rated GC at USC, operating independently with professionalism and fairness.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Operates independently with no oversight needed</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Consistently fair and professional</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Goes above and beyond on every project</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Highly recommended by multiple PMs</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>One of the best GCs at USC</span></div></div>`,
+  "Mythograph||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Reliable and capable architecture firm, valued long-term partner at USC.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Valued asset to USC capital projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Timely and thorough on deliverables</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Works well with USC PMs and GCs</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Smooth closeout and punchlist management</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Knowledgeable and always willing to assist</span></div></div>`,
+  "HC Olsen||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>One of USC&#39;s best GCs — proactive, solution-oriented, and consistently excellent.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Consistently committed to best outcomes for USC</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Proactive and solution-oriented approach</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>One of the best GCs on campus</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Excellent track record across multiple projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Very good overall experience</span></div></div>`,
+  "Vancrest||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Consistently outstanding GC delivering early, under budget, and highly responsive.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Delivers projects early and under budget</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Highly responsive to client daily requests</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Consistently outstanding closeout process</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Goes above and beyond on difficult projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Strong client satisfaction track record</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One project: could have been more proactive securing scaffold</span></div></div>`,
+  "Hamilton Construction||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Strong long-term GC with excellent track record, though one project showed very low scores.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Delivered weeks early and far under budget</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>30+ years of high quality work at USC</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Experienced and detail-oriented team</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>On time and on budget consistently</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One project received very low scores (1.48)</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Score variability across projects is high</span></div></div>`,
+  "Pinnacle Contracting||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Generally reliable contractor that goes above and beyond, with some project variability.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Goes above and beyond during unexpected issues</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Sought manufacturer support out of contract</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Great company to work with overall</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Some projects still in progress with incomplete scores</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One project noted no agency interaction</span></div></div>`,
+  "Sierra Pacific||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Excellent construction execution but consistently poor on administrative and closeout paperwork.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Great construction execution and quality</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Smooth operations and coordination</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Continued assisting after base scope completed</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Fantastic coordination with USC groups</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Consistently slow on paperwork and invoicing</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Needs reminding to submit change orders</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Closeout process delayed months due to paperwork</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Payment process slow on multiple projects</span></div></div>`,
+  "Stern Architects||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Competent and well-regarded architecture firm with strong knowledge of USC processes.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Well versed in USC processes and standards</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Consistently great to work with</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Competent and professional firm</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One project scored low (2.94) in preconstruction</span></div></div>`,
+  "Statewide Services||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Reliable contractor delivering ahead of schedule with good communication.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Delivered work ahead of schedule</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Good communication throughout projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Performed well on fast-paced repair projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Recommended for similar project types</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One project received low score (2.75)</span></div></div>`,
+  "Kaplan Chen Kaplan||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Better suited to feasibility studies than design; mixed performance across projects.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Overall good project execution in some cases</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Addressed punch list and scope requests</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Not recommended for design skills</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Stronger in feasibility than design</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Progress visits generated excessive additional scope requests</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Low score (2.56) on one project</span></div></div>`,
+  "Murray Company||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Excellent field crew and problem-solving; office team needs improvement on admin tasks.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Fantastic field crew and communication</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Strong problem-solving on difficult projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Worked well through unforeseen conditions</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Focused on quality project delivery</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Office team needs pushing on final change orders</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Slow to submit invoices and warranty documentation</span></div></div>`,
+  "SmithGroup JJR||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Mixed performance; one project paused, design concerns raised on another.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Captured requirements thoroughly through meetings</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Followed FDG and maintained PM contact</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One project paused with no progress to bid phase</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Low scores (2.32) on one project</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Design team relied on FPM Engineering for alignment</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Multiple bluebeam reviews needed before objectives met</span></div></div>`,
+  "AIR WEST MECH CONSTRUCTION||Design-Builder": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Adequate performance overall but minimal site observation noted.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Completed projects to satisfaction</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Minimal site observation and inspection noted</span></div></div>`,
+  "Pro Builders Inc.||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Mixed track record — pleasant on some projects, not recommended on others.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Pleasure to work with on one project</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Helpful and professional on closeout</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One PM would not put on future bid lists</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Significant score variability across projects</span></div></div>`,
+  "Red Pointe Roofing||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Strong overall delivery with excellent AHJ relationship and responsive follow-up.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Delivered complex project with 3 Saturday crane lifts</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Leveraged AHJ relationship to expedite closeout</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Very responsive to post-completion follow-up items</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Offered solutions to issues unrelated to their scope</span></div></div>`,
+  "SAA Associates||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Met project requirements consistently; solid reliable performance.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Met all project design requirements</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Consistent performance across projects</span></div></div>`,
+  "Whiting Turner||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Experienced hospital-setting GC; resolves disputes effectively but has schedule delays.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Experienced and diligent in hospital settings</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Promptly resolved disputes and subcontractor issues</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Works well with IOR and OSHPD field staff</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Schedule delays noted on multiple projects</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>COPCD disputes during construction on one project</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Score consistently in the mid-range (3.5–4.0)</span></div></div>`,
+  "C|A Architects||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Adaptable and responsive despite descoped project; timely field observation engagement.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Engaged timely with field observation reports</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Adapted well when project was descoped</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Strong preconstruction performance (4.9 score)</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>No record drawings applicable on descoped project</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Lower closeout score (3.0)</span></div></div>`,
+  "Global Building Corporation||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Rough start but delivers strong end results; communication issues resolved with PM change.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Strong end product and project outcomes</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Moved swiftly after PM change resolved issues</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Rough start on projects initially</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Required GC PM change due to communication issues with CCD</span></div></div>`,
+  "Huitt-Zollars||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Competent in hospital settings but key personnel changes caused coordination gaps.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Diligent with IOR, DPOR and OSHPD requirements</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Works well with IOR and OSHPD field staff</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>New team recovered gaps reasonably well</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Changed key personnel mid-project causing CA gaps</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Personnel change impacted quality management</span></div></div>`,
+  "KC Restoration||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Responsive to post-completion tile failures; monitoring ongoing installation concerns.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Very responsive to address failed tile issues</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Proactively surveyed overall installation</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Committed to monitoring application going forward</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Failed tile reported since project completion</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Installation method differed from upfront discussion</span></div></div>`,
+  "Other Architect||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Negotiated ASR costs effectively to meet project budget expectations.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Successfully negotiated ASR cost alignment</span></div></div>`,
+  "PPC A/C  also PPC Plumbing||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Meets challenges well but needs improvement managing Fire Alarm subcontractors.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Met all project challenges and adapted well</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Performed core scope competently</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Needs improvement managing Fire Alarm subs and Honeywell</span></div></div>`,
+  "Perera Construction||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Cooperative small-project contractor; PM would work with them again.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Completed project as requested with no resistance</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>PM would gladly work with team again</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>One project scored low (2.86) in construction phase</span></div></div>`,
+  "SRY Designs||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>High quality technical work with low change order rate; value for money could improve.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>High quality design work</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Performed well consistently</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Low change order rate</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Value for money not as efficient as it could be</span></div></div>`,
+  "Studio Plus||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Capably executed mid-size lab project in collaboration with Salas O&#39;Brien.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Capably executed complex lab project</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Strong collaborative approach with co-consultant</span></div></div>`,
+  "Wesley Thomas||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Good first USC project; minor issues expected to improve as firm learns USC standards.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Good field personnel and quality work</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Equipment has functioned well post-completion</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>First USC project — unfamiliar with USC-specific rules</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Minor issues likely to improve with more USC experience</span></div></div>`,
+  "Xcel Mechanical||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Poor performance on difficult projects — management honesty and problem-solving are major concerns.</div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Not equipped for complex underground utility projects</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Struggled with eBuilder and subcontractor management</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Management team not honest or focused on problem-solving</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Agrees to things then changes position later</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Schedule delays and poor communication with design team</span></div></div>`,
+  "Xcel Mechanical||Design-Builder": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Acceptable design-build performance with recommendation for better field-office collaboration.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Would work with again on future projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Completed scope satisfactorily</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Field staff and engineering office not well coordinated</span></div></div>`,
+  "ACCO Engineering||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Excellent cost-efficient GMP project saving significant cost and complexity.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Very cost efficient delivery</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Customer and CCD management highly satisfied</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Design flexibility saved the project</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>GMP with Mechanical Prime model worked well</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Sub-GC team was fantastic on details</span></div></div>`,
+  "Airwest Mechanical Construction Inc.||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Poor planning, inadequate resource allocation, and administrative failures caused significant delays.</div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Poor planning and inadequate resource allocation</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Daily reports not uploaded properly or timely</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Payment applications submitted with incomplete documentation</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Delayed responses prolonged project closeout</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Significant project schedule delays</span></div></div>`,
+  "LFA (Labib Funk & Associates)||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Minimal involvement on project; P2S carried the majority of design work.</div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Did very little work on the project</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Only one field visit at end of project</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>P2S did the majority of design scope</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Not hands-on despite being lead designer</span></div></div>`,
+  "Lee Rothrock||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Recovered well from materials delivery failure with high effort and expedited pace.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>High level of effort to complete at expedited pace</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Recovered professionally from delivery failure</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Failed to have materials delivered on time</span></div></div>`,
+  "Morrow-Meadows||Design-Builder": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Knowledgeable and timely design-builder with in-house engineering capability.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>In-house engineering capability</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Knowledgeable and timely delivery</span></div></div>`,
+  "NEIMAN GROUP||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Limited involvement — PM was not part of design and approval phase.</div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>PM had no involvement in design and approval phase</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Limited basis for full evaluation</span></div></div>`,
+  "Optima Energy, Inc||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Excellent LED lighting contractor with outstanding support and field coordination.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Great work on LED lighting projects</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Outstanding customer service and support</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Excellent field coordination</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Worked around user needs effectively</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Highly recommended for LED replacement work</span></div></div>`,
+  "Other Design-Builder||Design-Builder": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>AE failed to visit jobsite for critical conditions, causing design changes and schedule impact.</div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>AE did not visit jobsite for critical site condition changes</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Multiple design changes required due to missed conditions</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>OSHPD schedule impacted by design changes</span></div></div>`,
+  "PACIFIC FLOOR COMPANY, INC.||Design-Builder": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Completed small water-damaged floor repair project as required.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Completed scope as requested</span></div></div>`,
+  "Parker Brown Inc.||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Handled added scope professionally, working weekends with no impact to occupants.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Accommodated added scope after punch completion</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Worked weekends to minimize occupant impact</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>No disruption to building occupants</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Long lead hardware extended construction schedule</span></div></div>`,
+  "Red Pointe Roofing, LP||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Completed job to satisfaction despite weather delays and lack of proactive communication.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Completed job to satisfaction</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Not responsive or proactive during weather delays</span></div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Significant schedule delays due to conditions</span></div></div>`,
+  "Southern California Flagpole Company, Inc||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>PM explicitly recommends against using this vendor on future projects.</div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Explicitly not recommended for future projects by PM</span></div></div>`,
+  "Terry Hart||Architect": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Pleasant and professional to work with on construction project.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Pleasure to work with</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Professional engagement</span></div></div>`,
+  "YESCO Signs LLC||Contractor": `<div class="ai-summary"><div class="ai-summary-lbl">⚖ Overall Assessment</div>Knowledgeable on USC signage standards with smooth execution but office needs improvement.</div><div class="ai-positives"><div class="ai-section-title" style="color:var(--grn)">✅ Positive Feedback</div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Knowledgeable of USC standard signs</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Quick turnaround on sign production</span></div><div class="ai-item"><span style="color:var(--grn);flex-shrink:0;font-weight:700">✓</span><span>Smooth field execution</span></div></div><div class="ai-negatives"><div class="ai-section-title" style="color:var(--cardinal)">❌ Areas of Concern</div><div class="ai-item"><span style="color:var(--cardinal);flex-shrink:0;font-weight:700">✗</span><span>Office-side operations need improvement</span></div></div>`
+};
+
+let currentTab='All', sortField='eval_count', sortDir=-1;
+let lowScoreOnly=false, showAllRows=false;
+const PAGE_SIZE=20;
+let lastFilteredData=[];
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('nav-date').textContent=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  populatePMs();
+  populateDates();
+  applyFilters();
+});
+
+function populatePMs(){
+  const pms=new Set();
+  ALL_DATA.forEach(f=>f.pms.forEach(p=>pms.add(p)));
+  const sel=document.getElementById('filter-pm');
+  [...pms].sort().forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
+}
+
+function populateDates(){
+  const months=new Set();
+  ALL_DATA.forEach(f=>f.projects.forEach(p=>{if(p.date)months.add(p.date.substring(0,7));}));
+  const sorted=[...months].sort();
+  const labels={'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+  const toLabel=ym=>{const[y,m]=ym.split('-');return labels[m]+' '+y;};
+  const fromSel=document.getElementById('filter-date-from');
+  const toSel=document.getElementById('filter-date-to');
+  sorted.forEach(ym=>{
+    const o1=document.createElement('option');o1.value=ym;o1.textContent=toLabel(ym);fromSel.appendChild(o1);
+    const o2=document.createElement('option');o2.value=ym;o2.textContent=toLabel(ym);toSel.appendChild(o2);
+  });
+  // Default "To" to the latest month
+  toSel.value=sorted[sorted.length-1];
+}
+
+function scoreColor(s){
+  if(s===null||s===undefined) return 'var(--mut)';
+  if(s>=4.5) return 'var(--grn)';
+  if(s>=3.5) return '#1a5c8a';
+  if(s>=2.5) return 'var(--amb)';
+  return 'var(--cardinal)';
+}
+function scoreBarColor(s){
+  if(s===null||s===undefined) return '#e8d0d0';
+  if(s>=4.5) return '#1a7a3c';
+  if(s>=3.5) return '#1a5c8a';
+  if(s>=2.5) return '#b87a00';
+  return '#990000';
+}
+function avatarColor(name){
+  const colors=['linear-gradient(135deg,#990000,#660000)','linear-gradient(135deg,#cc9900,#996600)','linear-gradient(135deg,#7a0000,#4a0000)','linear-gradient(135deg,#5a3e8a,#3a2060)','linear-gradient(135deg,#1a5c8a,#0f3860)','linear-gradient(135deg,#1a7a3c,#0f5228)','linear-gradient(135deg,#8b4a00,#6b3000)'];
+  let h=0;for(let c of name)h=((h<<5)-h)+c.charCodeAt(0);
+  return colors[Math.abs(h)%colors.length];
+}
+function initials(name){return name.split(/[\s&]+/).filter(Boolean).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');}
+function typeBadge(vt){
+  const m={Architect:'arch',Contractor:'cont',Engineer:'eng','Design-Builder':'db'};
+  return `<span class="type-badge ${m[vt]||'arch'}">${vt}</span>`;
+}
+function phasePill(ph){
+  const m={Preconstruction:'pp-pre',Construction:'pp-con',Closeout:'pp-clo'};
+  const s={Preconstruction:'PRE',Construction:'CON',Closeout:'CLO'};
+  return `<span class="pp ${m[ph]||'pp-pre'}">${s[ph]||ph}</span>`;
+}
+function phaseClass(ph){
+  if(ph==='Preconstruction') return 'pp-pre';
+  if(ph==='Construction') return 'pp-con';
+  return 'pp-clo';
+}
+
+function getFiltered(){
+  const dateFrom=document.getElementById('filter-date-from').value; // "YYYY-MM"
+  const dateTo=document.getElementById('filter-date-to').value;
+  const pm=document.getElementById('filter-pm').value;
+  const phase=document.getElementById('filter-phase').value;
+  const q=document.getElementById('search-input').value.toLowerCase();
+  return ALL_DATA.filter(f=>{
+    if(currentTab!=='All'&&f.vendor_type!==currentTab) return false;
+    if(lowScoreOnly&&(f.avg_score===null||f.avg_score>=3.0)) return false;
+    if(pm&&!f.pms.includes(pm)) return false;
+    if(phase&&!f.phases.includes(phase)) return false;
+    if(dateFrom||dateTo){
+      const match=f.projects.some(p=>{
+        if(!p.date) return false;
+        const d=p.date.substring(0,7);
+        if(dateFrom&&d<dateFrom) return false;
+        if(dateTo&&d>dateTo) return false;
+        return true;
+      });
+      if(!match) return false;
+    }
+    if(q&&!f.firm_name.toLowerCase().includes(q)&&!f.pms.some(p=>p.toLowerCase().includes(q))&&!f.projects.some(p=>p.project_number?.toLowerCase().includes(q))) return false;
+    return true;
+  });
+}
+
+function applyFilters(){
+  const data=getFiltered();
+  lastFilteredData=data;
+  updateKPIs(data);
+  updateTabBadges();
+  renderTable(data);
+  renderCharts(data);
+  const dvFrom=document.getElementById('filter-date-from').value;
+  const dvTo=document.getElementById('filter-date-to').value;
+  const pv=document.getElementById('filter-pm').value;
+  const phv=document.getElementById('filter-phase').value;
+  document.getElementById('chip-date').classList.toggle('active',!!(dvFrom||dvTo));
+  document.getElementById('chip-pm').classList.toggle('active',!!pv);
+  document.getElementById('chip-phase').classList.toggle('active',!!phv);
+}
+
+function updateTabBadges(){
+  const savedTab=currentTab;
+  ['All','Architect','Contractor','Engineer','Design-Builder'].forEach(t=>{
+    currentTab=t;
+    document.getElementById('badge-'+t).textContent=getFiltered().length;
+  });
+  currentTab=savedTab;
+}
+
+function setTab(t){
+  currentTab=t;
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['All','Architect','Contractor','Engineer','Design-Builder'][i]===t);
+  });
+  showAllRows=false;
+  applyFilters();
+}
+
+function toggleScoreFilter(){
+  lowScoreOnly=!lowScoreOnly;
+  document.getElementById('chip-score').classList.toggle('active',lowScoreOnly);
+  applyFilters();
+}
+
+function sortBy(field){
+  if(sortField===field)sortDir*=-1;
+  else{sortField=field;sortDir=-1;}
+  applyFilters();
+}
+function showAll(){showAllRows=true;applyFilters();}
+
+function updateKPIs(data){
+  const totalEvals=data.reduce((s,f)=>s+f.eval_count,0);
+  const scored=data.filter(f=>f.avg_score!==null);
+  const avgScore=scored.length?(scored.reduce((s,f)=>s+f.avg_score,0)/scored.length).toFixed(2):'—';
+  const uniquePMs=new Set(data.flatMap(f=>f.pms)).size;
+  document.getElementById('kpi-evals').textContent=totalEvals;
+  document.getElementById('kpi-score').textContent=avgScore;
+  document.getElementById('kpi-firms').textContent=data.length;
+  document.getElementById('kpi-pms').textContent=uniquePMs;
+}
+
+function renderTable(data){
+  const sorted=[...data].sort((a,b)=>{
+    let av=a[sortField],bv=b[sortField];
+    if(av===null)av=-999;if(bv===null)bv=-999;
+    if(typeof av==='string')av=av.toLowerCase();
+    if(typeof bv==='string')bv=bv.toLowerCase();
+    return av<bv?sortDir:av>bv?-sortDir:0;
+  });
+  const display=showAllRows?sorted:sorted.slice(0,PAGE_SIZE);
+  const tbody=document.getElementById('table-body');
+  tbody.innerHTML=display.map(f=>{
+    const idx=ALL_DATA.indexOf(f);
+    const score=f.avg_score!==null?f.avg_score.toFixed(2):null;
+    const pmsShow=f.pms.slice(0,2);
+    const pmsExtra=f.pms.length>2?`<div class="pm-more" onclick="event.stopPropagation();showAllPMs(${idx},this)">+${f.pms.length-2} more</div>`:'';
+    const phases=[...new Set(f.phases)].map(phasePill).join('');
+    const hasComments=!!(f.all_comments&&f.all_comments.trim());
+    const cacheKey=f.firm_name+'||'+f.vendor_type;
+    const hasFeedback=!!AI_CACHE[cacheKey];
+
+    return `<tr>
+      <td><div class="firm-cell">
+        <div class="firm-av" style="background:${avatarColor(f.firm_name)}">${initials(f.firm_name)}</div>
+        <div><div class="firm-name">${esc(f.firm_name)}</div><div class="firm-sub">${f.eval_count} eval${f.eval_count!==1?'s':''}</div></div>
+      </div></td>
+      <td>${typeBadge(f.vendor_type)}</td>
+      <td style="font-weight:700;font-variant-numeric:tabular-nums">${f.eval_count}</td>
+      <td>${score!==null?`<div class="score-cell">
+        <span class="score-num" style="color:${scoreColor(f.avg_score)}">${score}</span>
+        <div class="score-track"><div class="score-fill" style="width:${(f.avg_score/5*100).toFixed(1)}%;background:${scoreBarColor(f.avg_score)}"></div></div>
+      </div>`:'<span class="no-score">No score</span>'}</td>
+      <td class="pm-cell">
+        ${pmsShow.map(p=>`<div class="pm-name">${esc(p)}</div>`).join('')}${pmsExtra}
+      </td>
+      <td><div class="phases-cell">${phases}</div></td>
+      <td>
+        <div class="action-cell">
+          <button class="btn-scores" onclick="openScores(${idx})" title="View per-project score breakdown">📊 Scores</button>
+          <button class="btn-feedback${!hasFeedback?' no-comments':''}" onclick="${hasFeedback?`openFeedback(${idx})`:'void(0)'}" title="${hasFeedback?'View AI-analysed PM feedback':'No comments available'}">💬 Feedback</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  const lm=document.getElementById('load-more-row');
+  if(!showAllRows&&sorted.length>PAGE_SIZE){
+    lm.style.display='block';
+    document.getElementById('showing-count').textContent=PAGE_SIZE;
+    document.getElementById('total-count').textContent=sorted.length;
+  }else{lm.style.display='none';}
+}
+
+function showAllPMs(idx,el){
+  const f=ALL_DATA[idx];if(!f)return;
+  const remaining=f.pms.slice(2);
+  const parent=el.parentElement;
+  remaining.forEach(p=>{const div=document.createElement('div');div.className='pm-name';div.textContent=p;parent.insertBefore(div,el);});
+  el.remove();
+}
+
+function esc(s){
+  if(!s)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderCharts(data){
+  const withScores=[...data].filter(f=>f.avg_score!==null).sort((a,b)=>b.avg_score-a.avg_score).slice(0,8);
+  document.getElementById('score-chart').innerHTML=withScores.map(f=>`
+    <div class="bar-row">
+      <div class="bl" title="${esc(f.firm_name)}">${esc(f.firm_name)}</div>
+      <div class="bt"><div class="bf" style="width:${(f.avg_score/5*100).toFixed(1)}%;background:${scoreBarColor(f.avg_score)}"></div></div>
+      <div class="bv" style="color:${scoreColor(f.avg_score)}">${f.avg_score.toFixed(1)}</div>
+    </div>`).join('');
+  const phases={Preconstruction:0,Construction:0,Closeout:0};
+  data.forEach(f=>f.projects.forEach(p=>{if(phases[p.project_phase]!==undefined)phases[p.project_phase]++;}));
+  const total=Object.values(phases).reduce((a,b)=>a+b,0)||1;
+  const phaseColors={Preconstruction:'#990000',Construction:'#cc9900',Closeout:'#1a7a3c'};
+  const phaseBg={Preconstruction:'var(--cardinal2)',Construction:'var(--gold2)',Closeout:'var(--grn2)'};
+  const phaseTxt={Preconstruction:'var(--cardinal)',Construction:'#7a5a00',Closeout:'var(--grn)'};
+  document.getElementById('phase-chart').innerHTML=
+    Object.entries(phases).map(([ph,cnt])=>`
+      <div style="display:flex;align-items:center;margin-bottom:11px">
+        <div style="font-size:12px;width:120px;color:var(--mut);font-weight:500">${ph}</div>
+        <span style="font-size:11px;padding:3px 10px;border-radius:8px;font-weight:700;background:${phaseBg[ph]};color:${phaseTxt[ph]}">${cnt} eval${cnt!==1?'s':''}</span>
+        <div style="font-size:11px;font-variant-numeric:tabular-nums;color:var(--mut);margin-left:auto;font-weight:600">${(cnt/total*100).toFixed(0)}%</div>
+      </div>`).join('')+
+    `<div class="phase-prog">${Object.entries(phases).map(([ph,cnt])=>`<div style="width:${(cnt/total*100).toFixed(1)}%;background:${phaseColors[ph]}"></div>`).join('')}</div>
+     <div class="prog-leg">${Object.keys(phases).map(ph=>`<span style="color:${phaseColors[ph]}">■ ${ph}</span>`).join('')}</div>`;
+}
+
+// ── SCORES MODAL ──
+function openScores(idx){
+  const f=ALL_DATA[idx];if(!f)return;
+  document.getElementById('s-title').textContent=f.firm_name+' — Score Breakdown';
+  document.getElementById('s-sub').textContent=f.vendor_type+' · '+f.eval_count+' evaluation'+(f.eval_count!==1?'s':'');
+  const scored=f.projects.filter(p=>p.score!==null);
+  document.getElementById('s-avg').textContent=f.avg_score!==null?f.avg_score.toFixed(2):'—';
+  document.getElementById('s-avg').style.color=scoreColor(f.avg_score);
+  document.getElementById('s-projs').textContent=new Set(f.projects.map(p=>p.project_number)).size;
+  document.getElementById('s-best').textContent=scored.length?Math.max(...scored.map(p=>p.score)).toFixed(2):'—';
+  document.getElementById('s-low').textContent=scored.length?Math.min(...scored.map(p=>p.score)).toFixed(2):'—';
+  document.getElementById('s-evals').textContent=f.eval_count;
+  document.getElementById('scores-body').innerHTML=f.projects.map(p=>{
+    const sc=p.score;
+    const rowClass=sc!==null&&sc<2.5?'low':(sc!==null&&sc<3.5?'warn':'');
+    return `<div class="proj-row ${rowClass}">
+      <div class="proj-info">
+        <div class="proj-num">Project #${esc(p.project_number)}</div>
+        <div class="proj-meta">PM: ${esc(p.pm_name)} · ${esc(p.year_month||p.date||'')} · ${esc(p.project_phase)}</div>
+        ${p.comment?`<div class="proj-comment">${esc(p.comment)}</div>`:''}
+      </div>
+      <span class="proj-phase ${phaseClass(p.project_phase)}" style="font-size:10px;padding:3px 9px;border-radius:8px;font-weight:700;flex-shrink:0">${p.project_phase}</span>
+      <div class="proj-score" style="color:${scoreColor(sc)}">${sc!==null?sc.toFixed(2):'—'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('overlay-scores').classList.add('open');
+}
+function closeScores(){document.getElementById('overlay-scores').classList.remove('open');}
+
+// ── FEEDBACK MODAL ──
+function openFeedback(idx){
+  const f=ALL_DATA[idx];if(!f)return;
+  const cacheKey=f.firm_name+'||'+f.vendor_type;
+  const cached=AI_CACHE[cacheKey];
+  document.getElementById('f-title').textContent=f.firm_name+' — PM Feedback';
+  document.getElementById('f-sub').textContent=f.vendor_type+' · '+f.eval_count+' evaluation'+(f.eval_count!==1?'s':'')+' · AI-analysed';
+
+  // Show raw comments + AI analysis
+  const rawComments=f.all_comments&&f.all_comments.trim()
+    ?`<div style="margin-bottom:16px">
+        <div class="feedback-all-comments-lbl">📝 Raw PM Comments</div>
+        <div class="feedback-all-comments">${esc(f.all_comments)}</div>
+      </div>`:'';
+  document.getElementById('feedback-body').innerHTML=rawComments+(cached||'<div style="font-size:12px;color:var(--fnt);font-style:italic">No feedback analysis available.</div>');
+  document.getElementById('overlay-feedback').classList.add('open');
+}
+function closeFeedback(){document.getElementById('overlay-feedback').classList.remove('open');}
+
+function toggleDatePicker(e){
+  e.stopPropagation();
+  const dd=document.getElementById('date-dropdown');
+  dd.classList.toggle('open');
+}
+// Close picker when clicking outside
+document.addEventListener('click',()=>{
+  const dd=document.getElementById('date-dropdown');
+  if(dd) dd.classList.remove('open');
+});
+
+function applyDateRange(){
+  const from=document.getElementById('filter-date-from').value;
+  const to=document.getElementById('filter-date-to').value;
+  // Auto-correct if from > to
+  if(from&&to&&from>to){
+    document.getElementById('filter-date-to').value=from;
+  }
+  updateDateLabel();
+  applyFilters();
+}
+
+function updateDateLabel(){
+  const from=document.getElementById('filter-date-from').value;
+  const to=document.getElementById('filter-date-to').value;
+  const labels={'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+  const fmt=ym=>{if(!ym)return'';const[y,m]=ym.split('-');return labels[m]+' '+y;};
+  const lbl=document.getElementById('date-label');
+  if(!from&&!to){lbl.textContent='All Dates';return;}
+  if(from&&!to){lbl.textContent=fmt(from)+' → Latest';return;}
+  if(!from&&to){lbl.textContent='Earliest → '+fmt(to);return;}
+  lbl.textContent=fmt(from)+' → '+fmt(to);
+}
+
+function setQuickRange(preset){
+  const fromSel=document.getElementById('filter-date-from');
+  const toSel=document.getElementById('filter-date-to');
+  if(preset===''){
+    fromSel.value=''; toSel.value='';
+  } else if(preset==='last6'){
+    const now=new Date();
+    const from=new Date(now.getFullYear(),now.getMonth()-5,1);
+    fromSel.value=from.getFullYear()+'-'+(String(from.getMonth()+1).padStart(2,'0'));
+    toSel.value=now.getFullYear()+'-'+(String(now.getMonth()+1).padStart(2,'0'));
+  } else if(preset==='last12'){
+    const now=new Date();
+    const from=new Date(now.getFullYear(),now.getMonth()-11,1);
+    fromSel.value=from.getFullYear()+'-'+(String(from.getMonth()+1).padStart(2,'0'));
+    toSel.value=now.getFullYear()+'-'+(String(now.getMonth()+1).padStart(2,'0'));
+  } else {
+    // Year preset e.g. '2025'
+    fromSel.value=preset+'-01';
+    toSel.value=preset+'-12';
+  }
+  updateDateLabel();
+  applyFilters();
+  document.getElementById('date-dropdown').classList.remove('open');
+}
+
+function exportCSV(){
+  const data=lastFilteredData.length?lastFilteredData:ALL_DATA;
+  const rows=[['Firm Name','Vendor Type','Eval Count','Avg Score','PMs','Phases','Comments']];
+  data.forEach(f=>rows.push([f.firm_name,f.vendor_type,f.eval_count,f.avg_score!==null?f.avg_score.toFixed(2):'',f.pms.join('; '),f.phases.join('; '),f.all_comments.replace(/\n/g,' ')]));
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='USC_vendor_evaluations.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
